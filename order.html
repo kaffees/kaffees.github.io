@@ -170,7 +170,7 @@
     },
     mounted: () => {
       new Promise( (resolve, reject) => {
-        ws = new WebSocket('ws://localhost:4567/orders/create');
+        ws = new WebSocket('wss://kaffees.herokuapp.com/orders/create');
         resolve();
       }).then( () =>  {
         ws.onopen = () => {

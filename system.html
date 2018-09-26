@@ -82,18 +82,21 @@
         let role = vm.user.role;
         // Adminの場合無条件で表示
         if ( !(role == 'admin') ) { 
-          switch (status) {
+          switch (status) { //注文のステータス
             case 'normal':
-              return true
+              return role == 'kitchen'
               break;
-            case 'created':
-              return !(vm.role('kitchen'))
+            case 'created': //kitchen
+              //作成済みの注文はキッチン担当の場合見せない
+              return !(role == 'kitchen')
               break;
-            case 'serviced':
-              return !(vm.role('provider'))
+            case 'serviced': //provider
+              //作成後提供された注文はキッチンとフロアーは見せない
+              return !(role == 'kitchen' || role == 'provider')
               break;
-            case 'calculated':
-              return !(vm.role('counter'))
+            case 'calculated': //counter
+              // calculated
+              return false //誰も見れない
               break;
           }
         } else {
@@ -109,7 +112,7 @@
       // Login verification
       auth.verification(sessionStorage.userToken, (result) => {
         if ( result ) {
-          axios.get('http://localhost:4567/orders').then( res => {
+          axios.get('https://kaffees.herokuapp.com/orders').then( res => {
             console.log(res.data);
             vm.orders = res.data;
             vm.user = {
@@ -127,7 +130,7 @@
 
       //WebSocket
       new Promise( (resolve, reject) => {
-        ws = new WebSocket('ws://localhost:4567/orders/create');
+        ws = new WebSocket('wss://kaffees.herokuapp.com/orders/create');
         resolve();
       }).then( () =>  {
         ws.onopen = () => {
@@ -145,14 +148,16 @@
               console.log("order_received: " + vm.orders);
               break;
             case 'order_created':
-              Vue.delete(vm.orders, data.order.id)
-              // console.log("order_created: " + vm.orders[data.order.id])
+              Vue.set(vm.orders[data.order.id].order, 'status', data.order.status);
               break;
             case 'order_serviced':
+              Vue.set(vm.orders[data.order.id].order, 'status', data.order.status);
               break;
             case 'order_calculated':
+              Vue.set(vm.orders[data.order.id].order, 'status', data.order.status);
               break;
             case 'order_destroy':
+              Vue.delete(vm.orders, data.order.id)
               break;
           }
         }

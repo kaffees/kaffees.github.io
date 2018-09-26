@@ -3,7 +3,7 @@
 class Authentication {
   verification(token, callback) {
     if (token) {
-      axios.post('http://localhost:4567/verification', JSON.stringify({
+      axios.post('https://kaffees.herokuapp.com/verification', JSON.stringify({
         token: token
       })
       ).then( res => {
@@ -21,7 +21,7 @@ class Authentication {
   }
 
   login(name, password, callback) {
-    axios.post('http://localhost:4567/login', JSON.stringify({
+    axios.post('https://kaffees.herokuapp.com/login', JSON.stringify({
       name: name,
       password: password
     })).then( res => {
