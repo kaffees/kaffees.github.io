@@ -104,21 +104,21 @@
         }
       },
       logout() {
-        sessionStorage.clear()
+        localStorage.clear()
         window.location.href = 'login.html'
       }
     },
     mounted: () => {
       // Login verification
-      auth.verification(sessionStorage.userToken, (result) => {
+      auth.verification(localStorage.userToken, (result) => {
         if ( result ) {
           axios.get('https://kaffees.herokuapp.com/orders').then( res => {
             console.log(res.data);
             vm.orders = res.data;
             vm.user = {
-              name:  sessionStorage.userName,
-              role:  sessionStorage.userRole,
-              token: sessionStorage.userToken
+              name:  localStorage.userName,
+              role:  localStorage.userRole,
+              token: localStorage.userToken
             }
           }).catch( err => {
             alert(err.response.statusText)
@@ -133,11 +133,10 @@
         ws = new WebSocket('wss://kaffees.herokuapp.com/orders/create');
         resolve();
       }).then( () =>  {
-        ws.onopen = () => {
-          vm.status = "サーバーとの接続が完了しました";
-        }
+        // ws.onopen = () => {
+        // }
         ws.onclose = () => {
-          vm.status = "サーバーとの接続が切断されました。ブラウザを再更新してください";
+          location.reload();
         }
         ws.onmessage = evt =>{
           let data = JSON.parse(evt.data);

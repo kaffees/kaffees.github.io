@@ -11,7 +11,7 @@ class Authentication {
         callback(true)
       }).catch( err => {
         console.error("The Expired Token");
-        sessionStorage.clear();
+        localStorage.clear();
         callback(false)
       });
     } else {
@@ -32,7 +32,7 @@ class Authentication {
   }
 
   logout() {
-    sessionStorage.clear()
+    localStorage.clear()
   }
 
 }

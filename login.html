@@ -44,9 +44,9 @@
       submit() {
         auth.login(vm.name, vm.password, (res) => {
           if( res.status == 200) {
-            sessionStorage.setItem('userName', res.data.user.name);
-            sessionStorage.setItem('userRole', res.data.user.role);
-            sessionStorage.setItem('userToken', res.data.token);
+            localStorage.setItem('userName', res.data.user.name);
+            localStorage.setItem('userRole', res.data.user.role);
+            localStorage.setItem('userToken', res.data.token);
             window.location.href = 'system.html';
           } else {
             alert(res.statusText);
@@ -55,7 +55,7 @@
       }
     },
     mounted: () => {
-      auth.verification(sessionStorage.userToken, (result) => {
+      auth.verification(localStorage.userToken, (result) => {
         if ( result ) {
           window.location.href = 'system.html'
         }
