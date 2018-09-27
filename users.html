@@ -27,7 +27,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="user in users">
+            <tr v-for="user in users" :key="user.id">
               <th scope="row">{{ user.id }}</th>
               <td>{{ user.name }}</td>
               <td>{{ user.role }}</td>
@@ -40,16 +40,22 @@
       <div v-show="editWindow">
         <h2>Edit Window</h2>
         <div class="form-group row">
-          <label for="inputEmail" class="col-sm-2 col-form-label">NewName</label>
+          <label for="inputEmail" class="col-sm-2 col-form-label">New Name</label>
           <div class="col-sm-10">
             <input type="text" id="inputEmail" class="form-control" name="name" placeholder="名前" v-model="newName"><br>
           </div>
         </div>
 
         <div class="form-group row">
-          <label for="inputEdit" class="col-sm-2 col-form-label">NewRole</label>
+          <label for="exampleFormControlSelect1" class="col-sm-2 col-form-label">New Role</label>
           <div class="col-sm-10">
-            <input type="text" id="inputEdit" class="form-control" name="role" placeholder="kitchen,provider,counter" v-model="newRole"><br>
+            <select class="form-control" id="exampleFormControlSelect1" v-model="newRole">
+              <option>normal</option>
+              <option>kitchen</option>
+              <option>provider</option>
+              <option>counter</option>
+              <option>admin</option>
+            </select>
           </div>
         </div>
 
@@ -60,7 +66,7 @@
           </div>
         </div>
 
-        <button class="btn btn-primary" v-on:click="submit">更新</button>
+        <button class="btn btn-primary" v-on:click="submit(userId)">更新</button>
 
       </div>
     </div>
@@ -71,6 +77,7 @@
     el: '#app',
     data: {
       users: [],
+      userId: 0,
       newName: "",
       newPassword: "",
       newRole: "",
@@ -81,20 +88,23 @@
       edit(id, name, role) {
         vm.userListWindow = false;
         vm.editWindow = true;
+        vm.userId = id
         vm.newName = name
         vm.newRole = role
       },
       destroy() {
       },
       submit() {
-        axios.put('https://kaffees.herokuapp.com/users', JSON.stringify({
+        // let url = 'https://kaffees.herokuapp.com/users/' + vm.userId
+        let url = 'http://localhost:4567/users/' + vm.userId
+        axios.post(url, JSON.stringify({
           name: vm.newName,
           role: vm.newRole,
           password: vm.newPassword
-        })).then(function (response) {
-          console.log(response);
-        }).catch(function (error) {
-          console.log(error);
+        })).then( res => {
+          location.reload();
+        }).catch( err => {
+          console.log(err);
         });
       }
     },
@@ -103,9 +113,15 @@
         if ( !(result) ) {
           window.location.href = 'login.html'
         } else {
-          axios.get('https://kaffees.herokuapp.com/users').then( res => { 
-            vm.users = res.data;
-          });
+          if ( localStorage.userRole == 'admin' ) {
+            let url = 'http://localhost:4567/users'
+              // let url = 'https://kaffees.herokuapp.com/users'
+              axios.get(url).then( res => { 
+                vm.users = res.data;
+              });
+          } else {
+            window.location.href = 'system.html'
+          }
         }
       })
     }

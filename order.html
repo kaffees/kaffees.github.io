@@ -133,22 +133,26 @@
     },
     methods: {
       confirmationSubmit() {
-        let num = Number(vm.caffee) + 
-          Number(vm.blacktea) + 
-          Number(vm.milktea) + 
-          Number(vm.matchalatte) + 
-          Number(vm.lebossorange);
+        if( !(sessionStorage.orderData) ) {
+          let num = Number(vm.caffee) + 
+            Number(vm.blacktea) + 
+            Number(vm.milktea) + 
+            Number(vm.matchalatte) + 
+            Number(vm.lebossorange);
 
-        console.log(num);
-        if(0 < num && num <= 4){
-          vm.orderSubmitDisabled = false;
-          vm.msg = "";
-        } else if(num == 0) {
-          vm.msg = '注文を入力してください';
-          vm.orderSubmitDisabled = true;
-        } else {
-          vm.msg = '注文は一回に４杯まででおねがいします'
+          if(0 < num && num <= 4){
+            vm.orderSubmitDisabled = false;
+            vm.msg = "";
+          } else if(num == 0) {
+            vm.msg = '注文を入力してください';
             vm.orderSubmitDisabled = true;
+          } else {
+            vm.msg = '注文は一回に４杯まででおねがいします'
+              vm.orderSubmitDisabled = true;
+          }
+        } else {
+          vm.msg = '連続注文はできません';
+          vm.orderSubmitDisabled = true;
         }
       },
       submit() {
@@ -182,12 +186,13 @@
         }
         ws.onmessage = evt =>{
           let data = JSON.parse(evt.data);
-          console.log(data);
+          sessionStorage.setItem('orderData', data.order.id);
         }
         ws.onerror = error => {
           console.log("Error:" + error);
         }
       })
+
     }
   })
   </script>
