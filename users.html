@@ -89,23 +89,23 @@
         vm.userListWindow = false;
         vm.editWindow = true;
         vm.userId = id
-        vm.newName = name
-        vm.newRole = role
+          vm.newName = name
+            vm.newRole = role
       },
       destroy() {
       },
       submit() {
-        // let url = 'https://kaffees.herokuapp.com/users/' + vm.userId
-        let url = 'http://localhost:4567/users/' + vm.userId
-        axios.post(url, JSON.stringify({
-          name: vm.newName,
-          role: vm.newRole,
-          password: vm.newPassword
-        })).then( res => {
-          location.reload();
-        }).catch( err => {
-          console.log(err);
-        });
+        let url = 'https://kaffees.herokuapp.com/users/' + vm.userId
+          // let url = 'http://localhost:4567/users/' + vm.userId
+          axios.post(url, JSON.stringify({
+            name: vm.newName,
+            role: vm.newRole,
+            password: vm.newPassword
+          })).then( res => {
+            location.reload();
+          }).catch( err => {
+            console.log(err);
+          });
       }
     },
     mounted: () => {
@@ -114,8 +114,8 @@
           window.location.href = 'login.html'
         } else {
           if ( localStorage.userRole == 'admin' ) {
-            let url = 'http://localhost:4567/users'
-              // let url = 'https://kaffees.herokuapp.com/users'
+            // let url = 'http://localhost:4567/users'
+            let url = 'https://kaffees.herokuapp.com/users'
               axios.get(url).then( res => { 
                 vm.users = res.data;
               });
