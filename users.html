@@ -87,7 +87,7 @@
       destroy() {
       },
       submit() {
-        axios.put('/users', JSON.stringify({
+        axios.put('https://kaffees.herokuapp.com/users', JSON.stringify({
           name: vm.newName,
           role: vm.newRole,
           password: vm.newPassword
