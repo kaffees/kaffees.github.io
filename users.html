@@ -88,9 +88,9 @@
       edit(id, name, role) {
         vm.userListWindow = false;
         vm.editWindow = true;
-        vm.userId = id
-          vm.newName = name
-            vm.newRole = role
+        vm.userId = id;
+        vm.newName = name;
+        vm.newRole = role;
       },
       destroy() {
       },
@@ -118,6 +118,8 @@
             let url = 'https://kaffees.herokuapp.com/users'
               axios.get(url).then( res => { 
                 vm.users = res.data;
+              }).catch( err => {
+                alert(err);
               });
           } else {
             window.location.href = 'system.html'
