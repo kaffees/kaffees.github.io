@@ -15,95 +15,53 @@
     <link rel="stylesheet" href="./assets/stylesheets/base.css">
   </head>
   <body>
-    <div id="app" class="system">
+    <div id="app">
       <div class="row">
         <h1 class="col-md-8">System</h1>
-        <h4 class="col-md-3">スタッフ: {{ user.name }} ( {{ user.role }} )</h4>
-        <button class="btn btn-info col-md-1" v-on:click="logout">Logout</button>
+        <h4 class="col-md-4">{{ user.name }} ( {{ user.role }} ) <a href="#" class="badge badge-info" v-on:click="logout">Logout</a> </h4>
       </div>
-      <p>{{ status }}</p>
-      <div class="container">
-        <div class="row">
-          <div class="orders col-md-4 card" v-for="order in orders" style="padding: 0.5em;" v-if="hoge(order.order.status)">
-              <div class="btn-group mx-auto" role="group" v-if="!(user.role == 'normal')">
-                <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Created')" v-show="role('kitchen')">
-                  作成済み
-                </button>
-                <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Serviced')" v-show="role('provider')">
-                  提供済み
-                </button>
-                <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Calculated')" v-show="role('counter')">
-                  会計済み
-                </button>
-                <button type="button" class="btn btn-danger" v-on:click="action(order.order.id, 'Destroy')" v-show="role('admin')">
-                  削除
-                </button>
-              </div> <!-- div.btn-group.mx-auto -->
-              <p>待ち番号: {{order.order.number}}</p>
-              <p>受け取り指定時間: {{ new Date(order.order.wait_time).toLocaleTimeString() }}</p>
-              <ul>
-                <li v-for=" product in order.products ">
-                  {{ product.name }}: {{ product.piece }}
-                </li>
-              </ul>
-              <!-- <p>合計{{order.products.length * Number(order.products.) 200}}円</p> -->
-          </div> <!-- div.orders.col-md-4 -->
-        </div> <!-- div.row -->
-      </div> <!-- div.container -->
-    </div> <!-- div#app.system -->
+
+      <div class="row">
+
+        <div class="card col-md-4">
+          <div class="card-body" style="padding: 15px;">
+            <h5 class="card-title">New Order</h5>
+            <h6 class="card-subtitle mb-2 text-muted">注文ページ</h6>
+            <p class="card-text">ホールスタッフが注文するためのページ</p>
+            <a href="order.html" class="card-link"> Orders List </a>
+          </div>
+        </div>
+
+        <div class="card col-md-4">
+          <div class="card-body" style="padding: 15px;">
+            <h5 class="card-title">Orders List</h5>
+            <h6 class="card-subtitle mb-2 text-muted">注文一覧</h6>
+            <p class="card-text">スタッフが注文を確認したりするページ</p>
+            <a href="orders_list.html" class="card-link"> Orders List </a>
+          </div>
+        </div>
+
+        <div class="card col-md-4">
+          <div class="card-body" style="padding: 15px;">
+            <h5 class="card-title"> Users List <span class="badge badge-danger">AO</span> </h5>
+            <h6 class="card-subtitle mb-2 text-muted">スタッフ一覧</h6>
+            <p class="card-text">管理者がスタッフ情報を変更をするページ</p>
+            <a href="users.html" class="card-link"> Users List </a>
+          </div>
+        </div>
+
+      </div><!-- div.row -->
+
+    </div>
   </body>
   <script>
-  var ws;
   let auth = new Authentication;
   var vm = new Vue({
     el: '#app',
     data: {
-      user: {},
-      orders: {},
-      status: ''
+      user: {}
     },
     methods: {
-      role(work) {
-        let role = vm.user.role;
-        if (role == work || role == 'admin'){
-          return true
-        } else if (role == 'admin') {
-          return true
-        } else {
-          return false
-        }
-      },
-      action(id, action) {
-        ws.send(JSON.stringify({
-          order_id: id,
-          action: action,
-        }));
-      },
-      hoge(status) {
-        let role = vm.user.role;
-        // Adminの場合無条件で表示
-        if ( !(role == 'admin') ) { 
-          switch (status) { //注文のステータス
-            case 'normal':
-              return role == 'kitchen'
-              break;
-            case 'created': //kitchen
-              //作成済みの注文はキッチン担当の場合見せない
-              return !(role == 'kitchen')
-              break;
-            case 'serviced': //provider
-              //作成後提供された注文はキッチンとフロアーは見せない
-              return !(role == 'kitchen' || role == 'provider')
-              break;
-            case 'calculated': //counter
-              // calculated
-              return false //誰も見れない
-              break;
-          }
-        } else {
-          return true
-        }
-      },
       logout() {
         localStorage.clear()
         window.location.href = 'login.html'
@@ -130,45 +88,6 @@
           window.location.href = 'login.html'
         }
       });
-
-      //WebSocket
-      new Promise( (resolve, reject) => {
-        let config = new CONFIG();
-        let url = config.wsurl(location.protocol) + '/orders/create'; 
-        ws = new WebSocket(url);
-        resolve();
-      }).then( () =>  {
-        // ws.onopen = () => {
-        // }
-        ws.onclose = () => {
-          location.reload();
-        }
-        ws.onmessage = evt =>{
-          let data = JSON.parse(evt.data);
-          console.log(data);
-          switch (data.action_performed){
-            case 'order_received':
-              Vue.set(vm.orders, data.order.id, data);
-              console.log("order_received: " + vm.orders);
-              break;
-            case 'order_created':
-              Vue.set(vm.orders[data.order.id].order, 'status', data.order.status);
-              break;
-            case 'order_serviced':
-              Vue.set(vm.orders[data.order.id].order, 'status', data.order.status);
-              break;
-            case 'order_calculated':
-              Vue.set(vm.orders[data.order.id].order, 'status', data.order.status);
-              break;
-            case 'order_destroy':
-              Vue.delete(vm.orders, data.order.id)
-              break;
-          }
-        }
-        ws.onerror = error => {
-          console.error("Error:" + error);
-        }
-      })
     }
   })
   </script>

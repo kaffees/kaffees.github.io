@@ -12,12 +12,12 @@ class Authentication {
         console.log("Authentication succeeded");
         callback(true)
       }).catch( err => {
-        alert("The Expired Token");
+        console.error("The Expired Token");
         localStorage.clear();
         callback(false)
       });
     } else {
-      alert("The token is undefined");
+      console.error("The token is undefined");
       callback(false)
     }
   }

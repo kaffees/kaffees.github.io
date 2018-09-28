@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <title>Kaffees - OrdersList</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="./assets/js/vue.js"></script>
+    <script src="./assets/js/axios.min.js"></script>
+    <script type="text/javascript" src="./assets/js/config.js"></script>
+    <script type="text/javascript" src="./assets/js/auth.js"></script>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="./assets/bootstrap/css/bootstrap.min.css">
+    <script src="./assets/js/jquery-3.3.1.min.js"></script>
+    <script src="./assets/bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="./assets/stylesheets/base.css">
+  </head>
+  <body>
+    <div id="app" class="orders_list">
+      <a href="#" v-on:click="backToSystem"> System &gt; OrdersList </a><br><br>
+      <div class="row">
+        <h1 class="col-md-8">Orders List</h1>
+        <h4 class="col-md-4">{{ user.name }} ( {{ user.role }} ) <a href="#" class="badge badge-info" v-on:click="logout">Logout</a> </h4>
+      </div>
+      <p>{{ status }}</p>
+      <div class="container">
+        <div class="row">
+          <div class="orders col-md-4 card" v-for="order in orders" style="padding: 0.5em;" v-if="hoge(order.order.status)">
+              <div class="btn-group mx-auto" role="group" v-if="!(user.role == 'normal')">
+                <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Created')" v-show="role('kitchen')">
+                  作成済み
+                </button>
+                <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Serviced')" v-show="role('provider')">
+                  提供済み
+                </button>
+                <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Calculated')" v-show="role('counter')">
+                  会計済み
+                </button>
+                <button type="button" class="btn btn-danger" v-on:click="action(order.order.id, 'Destroy')" v-show="role('admin')">
+                  削除
+                </button>
+              </div> <!-- div.btn-group.mx-auto -->
+              <p>待ち番号: {{order.order.number}}</p>
+              <p>受け取り指定時間: {{ new Date(order.order.wait_time).toLocaleTimeString() }}</p>
+              <ul>
+                <li v-for=" product in order.products ">
+                  {{ product.name }}: {{ product.piece }}
+                </li>
+              </ul>
+              <!-- <p>合計{{order.products.length * Number(order.products.) 200}}円</p> -->
+          </div> <!-- div.orders.col-md-4 -->
+        </div> <!-- div.row -->
+      </div> <!-- div.container -->
+    </div> <!-- div#app.system -->
+  </body>
+  <script>
+  var ws;
+  let auth = new Authentication;
+  var vm = new Vue({
+    el: '#app',
+    data: {
+      user: {},
+      orders: {},
+      status: ''
+    },
+    methods: {
+      role(work) {
+        let role = vm.user.role;
+        if (role == work || role == 'admin'){
+          return true
+        } else if (role == 'admin') {
+          return true
+        } else {
+          return false
+        }
+      },
+      action(id, action) {
+        ws.send(JSON.stringify({
+          order_id: id,
+          action: action,
+        }));
+      },
+      hoge(status) {
+        let role = vm.user.role;
+        // Adminの場合無条件で表示
+        if ( !(role == 'admin') ) { 
+          switch (status) { //注文のステータス
+            case 'normal':
+              return role == 'kitchen'
+              break;
+            case 'created': //kitchen
+              //作成済みの注文はキッチン担当の場合見せない
+              return !(role == 'kitchen')
+              break;
+            case 'serviced': //provider
+              //作成後提供された注文はキッチンとフロアーは見せない
+              return !(role == 'kitchen' || role == 'provider')
+              break;
+            case 'calculated': //counter
+              // calculated
+              return false //誰も見れない
+              break;
+          }
+        } else {
+          return true
+        }
+      },
+      backToSystem() {
+        window.location.href = 'system.html'
+      },
+      logout() {
+        localStorage.clear()
+        window.location.href = 'login.html'
+      }
+    },
+    mounted: () => {
+      // Login verification
+      auth.verification(localStorage.userToken, (result) => {
+        if ( result ) {
+          let config = new CONFIG();
+          let url = config.url(location.protocol) + '/orders';
+          axios.get(url).then( res => {
+            console.log(res.data);
+            vm.orders = res.data;
+            vm.user = {
+              name:  localStorage.userName,
+              role:  localStorage.userRole,
+              token: localStorage.userToken
+            }
+          }).catch( err => {
+            alert(err.response.statusText)
+          });
+        } else {
+          window.location.href = 'login.html'
+        }
+      });
+
+      //WebSocket
+      new Promise( (resolve, reject) => {
+        let config = new CONFIG();
+        let url = config.wsurl(location.protocol) + '/orders/create'; 
+        ws = new WebSocket(url);
+        resolve();
+      }).then( () =>  {
+        // ws.onopen = () => {
+        // }
+        ws.onclose = () => {
+          location.reload();
+        }
+        ws.onmessage = evt =>{
+          let data = JSON.parse(evt.data);
+          console.log(data);
+          switch (data.action_performed){
+            case 'order_received':
+              Vue.set(vm.orders, data.order.id, data);
+              console.log("order_received: " + vm.orders);
+              break;
+            case 'order_created':
+              Vue.set(vm.orders[data.order.id].order, 'status', data.order.status);
+              break;
+            case 'order_serviced':
+              Vue.set(vm.orders[data.order.id].order, 'status', data.order.status);
+              break;
+            case 'order_calculated':
+              Vue.set(vm.orders[data.order.id].order, 'status', data.order.status);
+              break;
+            case 'order_destroy':
+              Vue.delete(vm.orders, data.order.id)
+              break;
+          }
+        }
+        ws.onerror = error => {
+          console.error("Error:" + error);
+        }
+      })
+    }
+  })
+  </script>
+</html>
