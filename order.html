@@ -22,7 +22,7 @@
         <div class="form-group row">
           <label for="inputCaffee" class="col-sm-2 col-form-label">コーヒー</label>
           <div class="col-sm-10">
-            <select class="form-control" id="inputCaffee" v-model="caffee">
+            <select class="form-control" id="inputCaffee" v-model.number="caffee">
               <option selected>0</option>
               <option>1</option>
               <option>2</option>
@@ -35,7 +35,7 @@
         <div class="form-group row">
           <label for="inputBlacktea" class="col-sm-2 col-form-label">アールグレイ</label>
           <div class="col-sm-10">
-            <select class="form-control" id="inputBlacktea" v-model="blacktea">
+            <select class="form-control" id="inputBlacktea" v-model.number="blacktea">
               <option selected>0</option>
               <option>1</option>
               <option>2</option>
@@ -48,7 +48,7 @@
         <div class="form-group row">
           <label for="inputMilktea" class="col-sm-2 col-form-label">ミルクティー</label>
           <div class="col-sm-10">
-            <select class="form-control" id="inputMilktea" v-model="milktea">
+            <select class="form-control" id="inputMilktea" v-model.number="milktea">
               <option selected>0</option>
               <option>1</option>
               <option>2</option>
@@ -61,7 +61,7 @@
         <div class="form-group row">
           <label for="inputMatchalatte" class="col-sm-2 col-form-label">抹茶ラテ</label>
           <div class="col-sm-10">
-            <select class="form-control" id="inputMatchalatte" v-model="matchalatte">
+            <select class="form-control" id="inputMatchalatte" v-model.number="matchalatte">
               <option selected>0</option>
               <option>1</option>
               <option>2</option>
@@ -74,7 +74,7 @@
         <div class="form-group row">
           <label for="inputLebossorange" class="col-sm-2 col-form-label">ルイボスオレンジティー</label>
           <div class="col-sm-10">
-            <select class="form-control" id="inputLebossorange" v-model="lebossorange">
+            <select class="form-control" id="inputLebossorange" v-model.number="lebossorange">
               <option selected>0</option>
               <option>1</option>
               <option>2</option>
@@ -87,7 +87,7 @@
         <div class="form-group row">
           <label for="staticEmail" class="col-sm-2 col-form-label">受け取りの時間を指定する</label>
           <div class="col-sm-9">
-            <input type="time" class="form-control" name="wait_time" v-model="wait_time"/>
+            <input type="time" class="form-control" name="wait_time" v-model="wait_time" min="10:00:00" max="15:00:00" v-model="20:00:00" />
           </div>
           <div class="col-sm-1">に受け取り</div>
         </div>
@@ -117,6 +117,7 @@
                   <li v-if="lebossorange">ルイボスオレンジティー {{lebossorange }}杯</li>
                 </ul>
                 <h5>
+                  <span> 合計金額 {{ totalAmount }}円 </span> 
                   <span v-if="wait_time"> 受け取り指定時間 {{ wait_time }} </span> 
                   <span v-else> 5分以内の準備</span>
                 </h5>
@@ -166,12 +167,16 @@
       matchalatte: 0,
       lebossorange:0,
       wait_time: "",
+      nowTime: "10:00:00",
+      totalAmount: 0,
       status: "",
       msg: "",
     },
     methods: {
       confirmationSubmit() {
-        let num = Number(vm.caffee) + Number(vm.blacktea) + Number(vm.milktea) + Number(vm.matchalatte) + Number(vm.lebossorange);
+        let num = vm.caffee + vm.blacktea + vm.milktea + vm.matchalatte + vm.lebossorange;
+        vm.totalAmount = num * 200
+        console.log(num);
 
         if(0 < num && num <= 4){
           vm.orderSubmitDisabled = false;
@@ -206,7 +211,7 @@
         vm.orderedData = JSON.parse(localStorage.orderData);
         vm.orderWindow = false;
         vm.determinationWindow = true;
-      }
+      },
     },
     mounted: () => {
       new Promise( (resolve, reject) => {
