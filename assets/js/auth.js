@@ -3,31 +3,35 @@
 class Authentication {
   verification(token, callback) {
     if (token) {
-      axios.post('https://kaffees.herokuapp.com/verification', JSON.stringify({
+      let config = new CONFIG();
+      let url = config.url(location.protocol) + '/verification';
+      axios.post(url, JSON.stringify({
         token: token
       })
       ).then( res => {
         console.log("Authentication succeeded");
         callback(true)
       }).catch( err => {
-        console.error("The Expired Token");
+        alert("The Expired Token");
         localStorage.clear();
         callback(false)
       });
     } else {
-      console.error("The token is undefined");
+      alert("The token is undefined");
       callback(false)
     }
   }
 
   login(name, password, callback) {
-    axios.post('https://kaffees.herokuapp.com/login', JSON.stringify({
+    let config = new CONFIG();
+    let url = config.url(location.protocol) + '/login';
+    axios.post(url, JSON.stringify({
       name: name,
       password: password
     })).then( res => {
-        callback(res)
+      callback(res)
     }).catch( err => {
-        callback(err.response)
+      callback(err.response)
     });
   }
 

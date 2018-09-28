@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="./assets/js/vue.js"></script>
     <script src="./assets/js/axios.min.js"></script>
+    <script type="text/javascript" src="./assets/js/config.js"></script>
     <!-- Bootstrap -->
     <link rel="stylesheet" href="./assets/bootstrap/css/bootstrap.min.css">
     <script src="./assets/js/jquery-3.3.1.min.js"></script>
@@ -15,7 +16,7 @@
   <body>
     <div id="app">
 
-      <div class="order" v-show="order">
+      <div class="order" v-show="orderWindow">
         <h1>注文</h1>
         <p>各種すべて 200円 </p>
         <div class="form-group row">
@@ -103,9 +104,15 @@
         </div> <!-- div.modal-dialog -->
       </div> <!-- div.modal.fade -->
 
-      <div class="determination" v-show="determination">
+      <div class="determination" v-show="determinationWindow">
         <h2>注文が確定いたしました</h2>
-        <p>受け取り時間 {{ wait_time }}</p>
+        <ol>
+          <li v-for="order in orderedData.products" v-if="order.piece >= 1">
+            {{ order.name }} : {{ order.piece }}
+          </li>
+        </ol>
+        <p v-if="wait_time">受け取り時間 {{ wait_time }}</p>
+        <p v-else> 受け取り時間指定なし</p>
         <p>伝票番号 XXXX 番になります</p>
       </div>
 
@@ -118,8 +125,11 @@
   var vm = new Vue({
     el: '#app',
     data: {
-      order: true,
-      determination: false,
+      orderWindow: true,
+      determinationWindow: false,
+      confirmationSubmitDisabled: true,
+      orderSubmitDisabled: false,
+      orderedData: {},
       caffee: 0,
       blacktea: 0,
       milktea: 0,
@@ -128,36 +138,24 @@
       wait_time: "",
       status: "",
       msg: "",
-      confirmationSubmitDisabled: true,
-      orderSubmitDisabled: false,
     },
     methods: {
       confirmationSubmit() {
-        if( !(sessionStorage.orderData) ) {
-          let num = Number(vm.caffee) + 
-            Number(vm.blacktea) + 
-            Number(vm.milktea) + 
-            Number(vm.matchalatte) + 
-            Number(vm.lebossorange);
+        let num = Number(vm.caffee) + Number(vm.blacktea) + Number(vm.milktea) + Number(vm.matchalatte) + Number(vm.lebossorange);
 
-          if(0 < num && num <= 4){
-            vm.orderSubmitDisabled = false;
-            vm.msg = "";
-          } else if(num == 0) {
-            vm.msg = '注文を入力してください';
-            vm.orderSubmitDisabled = true;
-          } else {
-            vm.msg = '注文は一回に４杯まででおねがいします'
-              vm.orderSubmitDisabled = true;
-          }
-        } else {
-          vm.msg = '連続注文はできません';
+        if(0 < num && num <= 4){
+          vm.orderSubmitDisabled = false;
+          vm.msg = "";
+        } else if(num == 0) {
+          vm.msg = '注文を入力してください';
           vm.orderSubmitDisabled = true;
+        } else {
+          vm.msg = '注文は一回に４杯まででおねがいします'
+            vm.orderSubmitDisabled = true;
         }
       },
       submit() {
-        ws.send(JSON.stringify(
-          {
+        data = JSON.stringify({
             products: [
               { name: 'caffee',       piece: vm.caffee },
               { name: 'blacktea',     piece: vm.blacktea },
@@ -166,34 +164,43 @@
               { name: 'lebossorange', piece: vm.lebossorange },
             ],
             wait_time: vm.wait_time,
-          }
-        ));
-        vm.order = false;
-        vm.determination = true;
+          });
+        ws.send(data);
+        localStorage.setItem('orderData', data);
+
+        vm.orderedData = JSON.parse(localStorage.orderData);
+        vm.orderWindow = false;
+        vm.determinationWindow = true;
       },
+      test() {
+        vm.orderedData = JSON.parse(localStorage.orderData);
+        vm.orderWindow = false;
+        vm.determinationWindow = true;
+      }
     },
     mounted: () => {
       new Promise( (resolve, reject) => {
-        ws = new WebSocket('wss://kaffees.herokuapp.com/orders/create');
+        let config = new CONFIG();
+        let url = config.wsurl(location.protocol) + '/orders/create';
+        ws = new WebSocket(url);
         resolve();
       }).then( () =>  {
         ws.onopen = () => {
           vm.confirmationSubmitDisabled = false;
+          if ( localStorage.orderData ) {
+            vm.test();
+          }
         }
         ws.onclose = () => {
           vm.status = "サーバーとの接続が切断されました。ブラウザを再更新してください";
           vm.confirmationSubmitDisabled = true;
         }
-        ws.onmessage = evt =>{
-          let data = JSON.parse(evt.data);
-          sessionStorage.setItem('orderData', data.order.id);
-        }
-        ws.onerror = error => {
-          console.log("Error:" + error);
-        }
+        // ws.onmessage = evt => {
+        //   let data = JSON.parse(evt.data);
+        //   localStorage.setItem('orderData', data.order.id);
+        // }
       })
-
     }
   })
   </script>
-</html>
+  </html>

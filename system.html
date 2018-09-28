@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="./assets/js/vue.js"></script>
     <script src="./assets/js/axios.min.js"></script>
+    <script type="text/javascript" src="./assets/js/config.js"></script>
     <script type="text/javascript" src="./assets/js/auth.js"></script>
     <!-- Bootstrap -->
     <link rel="stylesheet" href="./assets/bootstrap/css/bootstrap.min.css">
@@ -112,7 +113,9 @@
       // Login verification
       auth.verification(localStorage.userToken, (result) => {
         if ( result ) {
-          axios.get('https://kaffees.herokuapp.com/orders').then( res => {
+          let config = new CONFIG();
+          let url = config.url(location.protocol) + '/orders';
+          axios.get(url).then( res => {
             console.log(res.data);
             vm.orders = res.data;
             vm.user = {
@@ -130,7 +133,9 @@
 
       //WebSocket
       new Promise( (resolve, reject) => {
-        ws = new WebSocket('wss://kaffees.herokuapp.com/orders/create');
+        let config = new CONFIG();
+        let url = config.wsurl(location.protocol) + '/orders/create'; 
+        ws = new WebSocket(url);
         resolve();
       }).then( () =>  {
         // ws.onopen = () => {
