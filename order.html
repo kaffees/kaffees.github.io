@@ -89,8 +89,7 @@
         <div class="form-group row">
           <label for="inputTime" class="col-sm-2 col-form-label">受け取りの時間を指定する</label>
           <div class="col-sm-9">
-            <!-- <input type="time" id="inputTime" class="form&#45;control" name="wait_time" v&#45;model="wait_time" min="10:00:00" max="15:00:00" v&#45;model="nowTime" /> -->
-            <input class="timepicker form-control" type="text">
+            <input type="text" class="timepicker form-control" v-model="wait_time">
           </div>
           <div class="col-sm-1">に受け取り</div>
         </div>
@@ -180,8 +179,8 @@
     methods: {
       confirmationSubmit() {
         let num = vm.caffee + vm.blacktea + vm.milktea + vm.matchalatte + vm.lebossorange;
-        vm.totalAmount = num * 200
-        console.log(num);
+        vm.totalAmount = num * 200;
+        vm.wait_time = $("input.timepicker").val();
 
         if(0 < num && num <= 4){
           vm.orderSubmitDisabled = false;
@@ -246,7 +245,7 @@
   $(document).ready(function(){
     var today = new Date();
     $('input.timepicker').timepicker({
-      timeFormat: 'h:mm p',
+      timeFormat: 'H:mm',
       interval: 5,
       minTime: '9',
       maxTime: '03:00pm',
