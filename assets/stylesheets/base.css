@@ -1,14 +1,15 @@
-body{
+body {
   margin: 0;
   padding: 30px 10% 30px 10%;
 }
-.footer 
-h2{
+
+h2 {
   margin-bottom: 30px;
   padding-bottom: 10px;
   border-bottom: 1px solid #ccc;
 }
-img{
+
+img {
   margin: 30px;
 }
 
