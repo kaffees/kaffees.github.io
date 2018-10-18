@@ -191,7 +191,11 @@
         //   let data = JSON.parse(evt.data);
         //   localStorage.setItem('orderData', data.order.id);
         // }
-      })
+      });
+      setInterval( () => {
+        ws.send(JSON.stringify({text: "dumy"}))
+        console.log("send")
+      }, 45000);
     }
   })
 
