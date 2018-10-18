@@ -20,84 +20,32 @@
 
       <div class="order" v-show="orderWindow">
         <h1>注文</h1>
-        <p>各種すべて 200円 </p>
-        <div class="form-group row">
-          <label for="inputCaffee" class="col-sm-2 col-form-label">コーヒー</label>
-          <div class="col-sm-10">
-            <select class="form-control" id="inputCaffee" v-model.number="caffee">
+
+        <div class="form-group row" v-for="product in products" >
+          <label for="inputCaffeeBlend" class="col-sm-4 col-form-label"> {{ product.name }} ({{ product.price }}円) </label>
+          <div class="col-sm-8">
+            <select class="form-control" id="input" v-model.number="product.piece">
               <option selected>0</option>
               <option>1</option>
               <option>2</option>
               <option>3</option>
               <option>4</option>
             </select>
-          </div>
-        </div>
+          </div> <!-- col-sm-8 -->
+        </div> <!-- form-group row -->
 
         <div class="form-group row">
-          <label for="inputBlacktea" class="col-sm-2 col-form-label">アールグレイ</label>
-          <div class="col-sm-10">
-            <select class="form-control" id="inputBlacktea" v-model.number="blacktea">
-              <option selected>0</option>
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group row">
-          <label for="inputMilktea" class="col-sm-2 col-form-label">ミルクティー</label>
-          <div class="col-sm-10">
-            <select class="form-control" id="inputMilktea" v-model.number="milktea">
-              <option selected>0</option>
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group row">
-          <label for="inputMatchalatte" class="col-sm-2 col-form-label">抹茶ラテ</label>
-          <div class="col-sm-10">
-            <select class="form-control" id="inputMatchalatte" v-model.number="matchalatte">
-              <option selected>0</option>
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group row">
-          <label for="inputLebossorange" class="col-sm-2 col-form-label">ルイボスオレンジティー</label>
-          <div class="col-sm-10">
-            <select class="form-control" id="inputLebossorange" v-model.number="lebossorange">
-              <option selected>0</option>
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group row">
-          <label for="inputTime" class="col-sm-2 col-form-label">受け取りの時間を指定する</label>
-          <div class="col-sm-9">
+          <label for="inputTime" class="col-sm-4 col-form-label">受け取りの時間を指定する</label>
+          <div class="col-sm-5">
             <input type="text" class="timepicker form-control" v-model="wait_time">
           </div>
-          <div class="col-sm-1">に受け取り</div>
-        </div>
+          <div class="col-sm-3">に受け取り</div>
+        </div> <!-- form-group row -->
 
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#confirmationModal" v-bind:disabled="confirmationSubmitDisabled" v-on:click="confirmationSubmit">
           確認画面にすすむ
         </button>
-      </div>
+      </div> <!-- .order -->
 
       <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -112,11 +60,9 @@
               <h4 class="text-danger">{{ msg }}</h4>
               <div v-if="!msg">
                 <ul>
-                  <li v-if="caffee">コーヒー{{ caffee }}杯</li>
-                  <li v-if="blacktea">アールグレイ {{ blacktea }}杯</li>
-                  <li v-if="milktea">ミルクティー {{ milktea }}杯</li>
-                  <li v-if="matchalatte">抹茶ラテ {{ matchalatte }}杯</li>
-                  <li v-if="lebossorange">ルイボスオレンジティー {{lebossorange }}杯</li>
+                  <li v-for="order in products" v-if="order.piece">
+                    {{ order.name }}: {{order.piece}} 杯 ({{ order.price }})円
+                  </li>
                 </ul>
                 <h5>
                   <span> 合計金額 {{ totalAmount }}円 </span> <br><br>
@@ -140,22 +86,23 @@
       <div class="determination" v-show="determinationWindow">
         <h2>注文が確定いたしました</h2>
         <ol>
-          <li v-for="order in orderedData.products" v-if="order.piece >= 1">
-            {{ order.name }} : {{ order.piece }}
-          </li>
+          <ul v-for="order in orderedData.products" v-if="order.piece">
+            {{ order.name }}を{{ order.piece }}杯
+          </ul>
         </ol>
         <p v-if="wait_time">受け取り時間 {{ wait_time }}</p>
         <p v-else> 受け取り時間指定なし</p>
         <p>伝票番号 XXXX 番になります</p>
-      </div>
+      </div> <!-- .determination -->
 
       <h4>{{ status }}</h4>
       <a href="index.html">戻る</a>
-    </div>
+    </div> <!-- #app -->
   </body>
-  <script type="text/javascript">
 
+  <script type="text/javascript">
   var ws;
+  let config = new CONFIG();
 
   var vm = new Vue({
     el: '#app',
@@ -165,11 +112,7 @@
       confirmationSubmitDisabled: true,
       orderSubmitDisabled: false,
       orderedData: {},
-      caffee: 0,
-      blacktea: 0,
-      milktea: 0,
-      matchalatte: 0,
-      lebossorange:0,
+      products: {},
       wait_time: "",
       nowTime: "10:00:00",
       totalAmount: 0,
@@ -178,8 +121,17 @@
     },
     methods: {
       confirmationSubmit() {
-        let num = vm.caffee + vm.blacktea + vm.milktea + vm.matchalatte + vm.lebossorange;
-        vm.totalAmount = num * 200;
+        vm.totalAmount = 0;
+
+        let num = 0;
+        for (key in vm.products) {
+          let orders = vm.products[key];
+          num += orders.piece;
+          if ( orders.piece ) {
+            vm.totalAmount += orders.price * orders.piece;
+          }
+        }
+
         vm.wait_time = $("input.timepicker").val();
 
         if(0 < num && num <= 4){
@@ -193,46 +145,47 @@
             vm.orderSubmitDisabled = true;
         }
       },
-      submit() {
+      submit() { // 注文確定ボタン
         data = JSON.stringify({
-            products: [
-              { name: 'caffee',       piece: vm.caffee },
-              { name: 'blacktea',     piece: vm.blacktea },
-              { name: 'milktea',      piece: vm.milktea },
-              { name: 'matchalatte',  piece: vm.matchalatte },
-              { name: 'lebossorange', piece: vm.lebossorange },
-            ],
-            wait_time: vm.wait_time,
+          products: vm.products,
+          wait_time: vm.wait_time,
           });
         ws.send(data);
-        localStorage.setItem('orderData', data);
-
-        vm.orderedData = JSON.parse(localStorage.orderData);
-        vm.orderWindow = false;
-        vm.determinationWindow = true;
-      },
-      test() {
-        vm.orderedData = JSON.parse(localStorage.orderData);
-        vm.orderWindow = false;
-        vm.determinationWindow = true;
+        if ( !(localStorage.userToken) ) {
+          // キャストの場合ストレージに保存しない
+          localStorage.setItem('orderData', data);
+        }
+        vm.orderedData = JSON.parse(data);
+        vm.orderWindow = false; //注文画面非表示
+        vm.determinationWindow = true; //注文確定画面表示
       },
     },
     mounted: () => {
+      let url = config.url(location.protocol) + '/products';
+      axios.get(url).then( response => {
+        vm.products = response.data;
+      }).catch( err => {
+        console.log(err);
+      }).then( () => {
+        // always executed
+      });
+
       new Promise( (resolve, reject) => {
-        let config = new CONFIG();
         let url = config.wsurl(location.protocol) + '/orders/create';
         ws = new WebSocket(url);
         resolve();
       }).then( () =>  {
         ws.onopen = () => {
           vm.confirmationSubmitDisabled = false;
-          if ( localStorage.orderData ) {
-            vm.test();
+          if ( localStorage.orderData ) { //注文履歴の存在
+            vm.orderedData = JSON.parse(localStorage.orderData);
+            vm.orderWindow = false; // 注文画面非表示
+            vm.determinationWindow = true; // 注文確定画面表示
           }
         }
         ws.onclose = () => {
           vm.status = "サーバーとの接続が切断されました。ブラウザを再更新してください";
-          vm.confirmationSubmitDisabled = true;
+          vm.confirmationSubmitDisabled = true; //注文ボタン無効化
         }
         // ws.onmessage = evt => {
         //   let data = JSON.parse(evt.data);

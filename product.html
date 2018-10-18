@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <title>Kaffees - Products</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="./assets/js/vue.js"></script>
+    <script src="./assets/js/axios.min.js"></script>
+    <script type="text/javascript" src="./assets/js/config.js"></script>
+    <script type="text/javascript" src="./assets/js/auth.js"></script>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="./assets/bootstrap/css/bootstrap.min.css">
+    <script src="./assets/js/jquery-3.3.1.min.js"></script>
+    <script src="./assets/bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="./assets/stylesheets/base.css">
+  </head>
+  <body>
+    <div id="app">
+      <div v-show="productsWindow">
+      <a href="#" v-on:click="backToOrders">System &gt; Products Index </a><br><br>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Name</th>
+              <th scope="col">Price</th>
+              <th scope="col">Edit</th>
+              <th scope="col">Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="product in products">
+              <th scope="row">{{ product.id }}</th>
+              <td>{{ product.name }}</td>
+              <td>{{ product.price }}</td>
+              <td><button type="button" class="btn btn-success" v-on:click="edit(product.id, product.name, product.price)">Edit</button></td>
+              <td><button type="button" class="btn btn-danger"  v-on:click="destroy(product.id)">Delete</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div> 
+      <div v-show="editWindow">
+        <a href="#" v-on:click="backToProducts">System &gt; Products Index &gt; {{ newName }}</a><br><br>
+        <h2>Edit Window</h2>
+        <div class="form-group row">
+          <label for="inputName" class="col-sm-2 col-form-label">New Name</label>
+          <div class="col-sm-10">
+            <input type="text" id="inputName" class="form-control" name="name" placeholder="商品名" v-model="newName"><br>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="inputPrice" class="col-sm-2 col-form-label">NewPrice</label>
+          <div class="col-sm-10">
+            <input type="text" id="inputPrice" class="form-control" name="price" placeholder="200" v-model="newPrice"><br>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" v-on:click="editSubmit(productId)">更新</button>
+
+      </div>
+    </div>
+  </body>
+  <script>
+  let auth = new Authentication;
+  var vm = new Vue({
+    el: '#app',
+    data: {
+      products: [],
+      productId: 0,
+      newName: "",
+      newPrice: "",
+      productsWindow: true,
+      editWindow: false
+    },
+    methods: {
+      edit(id, name, price) { //ユーザー更新画面に移動
+        vm.productId         = id;
+        vm.newName           = name;
+        vm.newPrice          = price;
+        vm.productsWindow    = false;
+        vm.editWindow        = true;
+      },
+      destroy(id) {
+      },
+      editSubmit() { //ユーザーを更新
+        let config = new CONFIG();
+        let url = config.url(location.protocol) + '/products/' + vm.productId;
+        axios.post(url, JSON.stringify({
+          name:  vm.newName,
+          price: vm.newPrice,
+        })).then( res => {
+          location.reload();
+        }).catch( err => {
+          alert(err)
+          console.log(err);
+        });
+      },
+      backToProducts() { // ユーザー一覧に戻る
+        vm.productsWindow = true;
+        vm.editWindow = false;
+      },
+      backToOrders() { // オーダー画面に戻る
+        window.location.href = 'system.html'
+      }
+    },
+    mounted: () => {
+      auth.verification(localStorage.userToken, (result) => {
+        if ( !(result) ) {
+          window.location.href = 'login.html'
+        } else {
+          if ( localStorage.userRole == 'admin' ) {
+            let config = new CONFIG();
+            let url = config.url(location.protocol) + '/products';
+            axios.get(url).then( res => { 
+              vm.products = res.data;
+            }).catch( err => {
+              alert(err);
+            });
+          } else {
+            window.location.href = 'system.html'
+          }
+        }
+      })
+    }
+  })
+  </script>
+</html>

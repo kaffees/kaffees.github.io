@@ -43,9 +43,10 @@
               <p>受け取り指定時間: {{ new Date(order.order.wait_time).toLocaleTimeString() }}</p>
               <ul>
                 <li v-for=" product in order.products ">
-                  {{ product.name }}: {{ product.piece }}
+                  {{ product.name }}
                 </li>
               </ul>
+              注文時間: {{ new Date(order.order.created_at).toLocaleTimeString() }}
               <!-- <p>合計{{order.products.length * Number(order.products.) 200}}円</p> -->
           </div> <!-- div.orders.col-md-4 -->
         </div> <!-- div.row -->
