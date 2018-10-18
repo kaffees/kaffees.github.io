@@ -81,19 +81,11 @@
       // Login verification
       auth.verification(localStorage.userToken, (result) => {
         if ( result ) {
-          let config = new CONFIG();
-          let url = config.url(location.protocol) + '/orders';
-          axios.get(url).then( res => {
-            console.log(res.data);
-            vm.orders = res.data;
-            vm.user = {
-              name:  localStorage.userName,
-              role:  localStorage.userRole,
-              token: localStorage.userToken
-            }
-          }).catch( err => {
-            alert(err.response.statusText)
-          });
+          vm.user = {
+            name:  localStorage.userName,
+            role:  localStorage.userRole,
+            token: localStorage.userToken
+          }
         } else {
           window.location.href = 'login.html'
         }

@@ -18,6 +18,38 @@
     <div id="app">
       <div v-show="productsWindow">
       <a href="#" v-on:click="backToOrders">System &gt; Products Index </a><br><br>
+
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createModal">
+          商品追加
+        </button><br>
+
+        <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="createModalTitle">商品追加</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div> <!-- modal-header -->
+              <div class="modal-body">
+                <label>商品名: 
+                  <input type="text" class="form-control" v-model="createProduct.name" placeholder="caffee"/>
+                </label><br>
+                <label>値段: 
+                  <input type="number" class="form-control"  v-model.number="createProduct.price" placeholder="200"/>
+                </label>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-primary" v-on:click="create" data-dismiss="modal"> 商品追加 </button>
+                </div> <!-- div.modal-footer -->
+              </div> <!-- div.modal-body -->
+            </div> <!-- div.modal-content -->
+          </div> <!-- div.modal-dialog -->
+        </div> <!-- div.modal.fade -->
+
+
+        <br>
+
         <table class="table">
           <thead>
             <tr>
@@ -32,13 +64,14 @@
             <tr v-for="product in products">
               <th scope="row">{{ product.id }}</th>
               <td>{{ product.name }}</td>
-              <td>{{ product.price }}</td>
+              <td>{{ product.price }}円</td>
               <td><button type="button" class="btn btn-success" v-on:click="edit(product.id, product.name, product.price)">Edit</button></td>
               <td><button type="button" class="btn btn-danger"  v-on:click="destroy(product.id)">Delete</button></td>
             </tr>
           </tbody>
         </table>
       </div> 
+
       <div v-show="editWindow">
         <a href="#" v-on:click="backToProducts">System &gt; Products Index &gt; {{ newName }}</a><br><br>
         <h2>Edit Window</h2>
@@ -46,23 +79,25 @@
           <label for="inputName" class="col-sm-2 col-form-label">New Name</label>
           <div class="col-sm-10">
             <input type="text" id="inputName" class="form-control" name="name" placeholder="商品名" v-model="newName"><br>
-          </div>
-        </div>
+          </div><!-- .col-sm -->
+        </div><!-- form-group row -->
 
         <div class="form-group row">
           <label for="inputPrice" class="col-sm-2 col-form-label">NewPrice</label>
           <div class="col-sm-10">
             <input type="text" id="inputPrice" class="form-control" name="price" placeholder="200" v-model="newPrice"><br>
-          </div>
-        </div>
+          </div><!-- col-sm-10 -->
+        </div> <!-- form-group row -->
 
         <button class="btn btn-primary" v-on:click="editSubmit(productId)">更新</button>
 
-      </div>
+      </div><!-- edit window -->
+
     </div>
   </body>
   <script>
   let auth = new Authentication;
+  let config = new CONFIG();
   var vm = new Vue({
     el: '#app',
     data: {
@@ -70,6 +105,10 @@
       productId: 0,
       newName: "",
       newPrice: "",
+      createProduct: {
+        name: "",
+        price: 200,
+      },
       productsWindow: true,
       editWindow: false
     },
@@ -83,8 +122,19 @@
       },
       destroy(id) {
       },
+      create() {
+        let url = config.url(location.protocol) + '/products';
+        axios.post(url, JSON.stringify({
+          name:  vm.createProduct.name,
+          price: vm.createProduct.price,
+        })).then( res => {
+          location.reload();
+        }).catch( err => {
+          alert(err)
+          console.log(err);
+        });
+      },
       editSubmit() { //ユーザーを更新
-        let config = new CONFIG();
         let url = config.url(location.protocol) + '/products/' + vm.productId;
         axios.post(url, JSON.stringify({
           name:  vm.newName,
