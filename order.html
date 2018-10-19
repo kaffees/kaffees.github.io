@@ -21,7 +21,7 @@
       <div class="order" v-show="orderWindow">
         <h1>注文</h1>
 
-        <div class="form-group row" v-for="product in products" >
+        <div class="form-group row" v-for="product in products" v-if="productsSwitch(product.name)">
           <label for="inputCaffeeBlend" class="col-sm-4 col-form-label"> {{ product.name }} ({{ product.price }}円) </label>
           <div class="col-sm-8">
             <select class="form-control" id="input" v-model.number="product.piece">
@@ -74,7 +74,7 @@
               </div> <!-- v-if='!msg' -->
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">注文を修正</button>
-                <button type="button" class="btn btn-primary" v-on:click="submit" data-dismiss="modal" v-bind:disabled="orderSubmitDisabled">
+                <button type="button" class="btn btn-primary" v-on:click="submit" data-dismiss="modal" v-bind:disabled="orderSubmitDisabled" >
                   注文を確定
                 </button>
               </div> <!-- div.modal-footer -->
@@ -90,7 +90,7 @@
             {{ order.name }}を{{ order.piece }}杯
           </ul>
         </ol>
-        <p v-if="wait_time">受け取り時間 {{ wait_time }}</p>
+        <p v-if="orderedData.wait_time">受け取り時間 {{ orderedData.wait_time }}</p>
         <p v-else> 受け取り時間指定なし</p>
         <p>伝票番号 XXXX 番になります</p>
       </div> <!-- .determination -->
@@ -159,8 +159,15 @@
         vm.orderWindow = false; //注文画面非表示
         vm.determinationWindow = true; //注文確定画面表示
       },
+      productsSwitch(name) {
+        if ( !(localStorage.userToken) ) {
+          return !(name == "エルサルバドル" || name == "ボリビア")
+        }
+        return true
+      }
     },
     mounted: () => {
+      // get Products(Menu)
       let url = config.url(location.protocol) + '/products';
       axios.get(url).then( response => {
         vm.products = response.data;
