@@ -102,6 +102,10 @@
     </div> <!-- #app -->
   </body>
 
+  <style>
+   
+  </style>
+
   <script type="text/javascript">
   var ws;
   let config = new CONFIG();
@@ -115,7 +119,7 @@
         type: Boolean
       }
     },
-    template: '<div v-if="show" id="loader-bg"><img src="./assets/images/loading.gif"></div>'
+    template: '<transition name="fade"><div v-if="show" id="loader-bg"><img src="./assets/images/loading.gif"></div></transition>'
   });
 
   var vm = new Vue({
