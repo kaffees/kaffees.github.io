@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="./assets/js/vue.js"></script>
     <script src="./assets/js/axios.min.js"></script>
+    <script src="./assets/js/random.js"></script>
     <script type="text/javascript" src="./assets/js/config.js"></script>
     <!-- Bootstrap -->
     <link rel="stylesheet" href="./assets/bootstrap/css/bootstrap.min.css">
@@ -102,6 +103,8 @@
   <script type="text/javascript">
   var ws;
   let config = new CONFIG();
+  let random = new Random();
+  let clientId = random.create();
 
   var vm = new Vue({
     el: '#app',
@@ -150,6 +153,7 @@
       },
       submit() { // 注文確定ボタン
         data = JSON.stringify({
+          clientId: clientId,
           products: vm.products,
           wait_time: vm.wait_time,
           });
@@ -192,12 +196,16 @@
           vm.confirmationSubmitDisabled = true; //注文ボタン無効化
         }
         ws.onmessage = evt => {
-          vm.orderWindow = false;
-          vm.determinationWindow = true; //注文確定画面表示
           vm.orderedData = JSON.parse(evt.data);
-          if ( !(localStorage.userToken) ) {
-            // キャストの場合ストレージに保存しない
-            localStorage.setItem('orderData', evt.data);
+          if ( vm.orderedData.client_id === clientId ) { //この端末で注文されたデータか確認
+            if ( localStorage.userToken ) { //ゲストの場合注文完了画面に移動
+              alert("受け取り番号: " + vm.orderedData.counter.receipt_number + "番をお客様に渡してください")
+              location.reload();
+            } else {
+              localStorage.setItem('orderData', evt.data);
+              vm.orderWindow = false;
+              vm.determinationWindow = true; //注文確定画面表示
+            }
           }
         }
       });
