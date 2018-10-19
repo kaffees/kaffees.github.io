@@ -176,41 +176,40 @@
         // always executed
       });
 
-      if ( !(localStorage.orderData) ) { //注文履歴の存在
-        new Promise( (resolve, reject) => {
-          let url = config.wsurl(location.protocol) + '/orders/create';
-          ws = new WebSocket(url);
-          resolve();
-        }).then( () =>  {
+      new Promise( (resolve, reject) => {
+        let url = config.wsurl(location.protocol) + '/orders/create';
+        ws = new WebSocket(url);
+        resolve();
+      }).then( () =>  {
 
-          ws.onopen = () => {
-            vm.confirmationSubmitDisabled = false;
+        ws.onopen = () => {
+          vm.confirmationSubmitDisabled = false;
+          if ( localStorage.orderData ) { //注文履歴の存在
+            vm.orderedData = JSON.parse(localStorage.orderData);
+            vm.orderWindow = false; // 注文画面非表示
+            vm.determinationWindow = true; // 注文確定画面表示
           }
+        }
 
-          ws.onclose = () => {
-            vm.confirmationSubmitDisabled = true; //注文ボタン無効化
-              alert("サーバーとの接続が切断されました。ブラウザを再更新します");
-          }
+        ws.onclose = () => {
+          vm.confirmationSubmitDisabled = true; //注文ボタン無効化
+          alert("サーバーとの接続が切断されました。ブラウザを再更新します");
+        }
 
-          ws.onmessage = evt => {
-            let order = JSON.parse(evt.data);
-            if ( order.client_id === clientId ) { //この端末で注文されたデータか確認
-              if ( localStorage.userToken ) { //ゲストの場合注文完了画面に移動
-                alert("受け取り番号: " + order.counter.receipt_number + "番をお客様に渡してください")
-                location.reload();
-              } else {
-                localStorage.setItem('orderData', evt.data);
-                location.reload()
-              }
+        ws.onmessage = evt => {
+          let data = JSON.parse(evt.data);
+          if ( data.client_id === clientId ) { //この端末で注文されたデータか確認
+            if ( localStorage.userToken ) { //ゲストの場合注文完了画面に移動
+              alert("受け取り番号: " + data.counter.receipt_number + "番をお客様に渡してください")
+              location.reload();
+            } else {
+              localStorage.setItem('orderData', evt.data);
+              location.reload()
             }
           }
+        }
 
-        });
-      } else {
-        vm.orderedData = JSON.parse(localStorage.orderData);
-        vm.orderWindow = false; // 注文画面非表示
-        vm.determinationWindow = true; // 注文確定画面表示
-      }
+      });
 
       setInterval( () => { // heroku 対策
         ws.send(JSON.stringify({text: "dumy"}))
