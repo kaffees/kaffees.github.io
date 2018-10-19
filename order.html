@@ -198,6 +198,8 @@
 
         ws.onmessage = evt => {
           vm.orderedData = JSON.parse(evt.data);
+          console.log("ws.onmessage:" + vm.orderedData.client_id)
+          console.log("clientID" + clientId)
           if ( vm.orderedData.client_id === clientId ) { //この端末で注文されたデータか確認
             if ( localStorage.userToken ) { //ゲストの場合注文完了画面に移動
               alert("受け取り番号: " + vm.orderedData.counter.receipt_number + "番をお客様に渡してください")
