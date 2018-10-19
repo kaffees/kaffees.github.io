@@ -176,7 +176,7 @@
         // always executed
       });
 
-      if ( localStorage.orderData ) { //注文履歴の存在
+      if ( !(localStorage.orderData) ) { //注文履歴の存在
         new Promise( (resolve, reject) => {
           let url = config.wsurl(location.protocol) + '/orders/create';
           ws = new WebSocket(url);
