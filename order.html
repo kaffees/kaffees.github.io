@@ -4,6 +4,8 @@
     <title>Kaffees - Order</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="./assets/images/favicon.ico" type="image/vnd.microsoft.icon">
+    <link rel="icon" href="./assets/images/favicon.ico" type="image/vnd.microsoft.icon">
     <script src="./assets/js/vue.js"></script>
     <script src="./assets/js/axios.min.js"></script>
     <script src="./assets/js/random.js"></script>
@@ -18,6 +20,7 @@
   </head>
   <body>
     <div id="app">
+      <v-loading :show="hoge"></v-loading>
 
       <div class="order" v-show="orderWindow">
         <h1>注文</h1>
@@ -105,6 +108,20 @@
   let random = new Random();
   let clientId = random.create();
 
+  Vue.component('v-loading', {
+    props: {
+      text: {
+        default: 'ロード中...',
+        type: String
+      },
+      show: {
+        default: false,
+        type: Boolean
+      }
+    },
+    template: '<div v-if="show"><img src="/images/ajax-loader.gif">&nbsp;<span v-text="text"></span></div>'
+  });
+
   var vm = new Vue({
     el: '#app',
     data: {
@@ -112,6 +129,7 @@
       determinationWindow: false,
       confirmationSubmitDisabled: true,
       orderSubmitDisabled: false,
+      hoge: true,
       orderedData: {
         order: {},
         counter: {},
