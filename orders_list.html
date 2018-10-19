@@ -42,7 +42,7 @@
                   削除
                 </button>
               </div> <!-- div.btn-group.mx-auto -->
-              <p>待ち番号: {{order.order.number}}</p>
+              <p>待ち番号: {{order.counter.receipt_number}}</p>
               <p>受け取り指定時間: {{ new Date(order.order.wait_time).toLocaleTimeString() }}</p>
               <ul>
                 <li v-for=" product in order.products ">

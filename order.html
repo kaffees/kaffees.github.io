@@ -20,8 +20,7 @@
 
       <div class="order" v-show="orderWindow">
         <h1>注文</h1>
-
-        <div class="form-group row" v-for="product in products" v-if="productsSwitch(product.name)">
+        <div class="form-group row" v-for="product in products" v-if="productsSwitch(product)">
           <label for="inputCaffeeBlend" class="col-sm-4 col-form-label"> {{ product.name }} ({{ product.price }}円) </label>
           <div class="col-sm-8">
             <select class="form-control" id="input" v-model.number="product.piece">
@@ -86,13 +85,13 @@
       <div class="determination" v-show="determinationWindow">
         <h2>注文が確定いたしました</h2>
         <ol>
-          <ul v-for="order in orderedData.products" v-if="order.piece">
-            {{ order.name }}を{{ order.piece }}杯
+          <ul v-for="order in orderedData.products">
+            {{ order.name }}
           </ul>
         </ol>
-        <p v-if="orderedData.wait_time">受け取り時間 {{ orderedData.wait_time }}</p>
+        <p v-if="orderedData.order.wait_time">受け取り時間 {{ new Date(orderedData.order.wait_time).toLocaleTimeString() }}</p>
         <p v-else> 受け取り時間指定なし</p>
-        <p>伝票番号 XXXX 番になります</p>
+        <p>伝票番号 {{ orderedData.counter.receipt_number }} 番になります</p>
       </div> <!-- .determination -->
 
       <h4>{{ status }}</h4>
@@ -111,7 +110,11 @@
       determinationWindow: false,
       confirmationSubmitDisabled: true,
       orderSubmitDisabled: false,
-      orderedData: {},
+      orderedData: {
+        order: {},
+        counter: {},
+        products: {},
+      },
       products: {},
       wait_time: "",
       nowTime: "10:00:00",
@@ -151,17 +154,11 @@
           wait_time: vm.wait_time,
           });
         ws.send(data);
-        if ( !(localStorage.userToken) ) {
-          // キャストの場合ストレージに保存しない
-          localStorage.setItem('orderData', data);
-        }
-        vm.orderedData = JSON.parse(data);
-        vm.orderWindow = false; //注文画面非表示
-        vm.determinationWindow = true; //注文確定画面表示
+        
       },
-      productsSwitch(name) {
+      productsSwitch(product) {
         if ( !(localStorage.userToken) ) {
-          return !(name == "エルサルバドル" || name == "ボリビア")
+          return !(product.staff_only)
         }
         return true
       }
@@ -194,10 +191,15 @@
           vm.status = "サーバーとの接続が切断されました。ブラウザを再更新してください";
           vm.confirmationSubmitDisabled = true; //注文ボタン無効化
         }
-        // ws.onmessage = evt => {
-        //   let data = JSON.parse(evt.data);
-        //   localStorage.setItem('orderData', data.order.id);
-        // }
+        ws.onmessage = evt => {
+          vm.orderWindow = false;
+          vm.determinationWindow = true; //注文確定画面表示
+          vm.orderedData = JSON.parse(evt.data);
+          if ( !(localStorage.userToken) ) {
+            // キャストの場合ストレージに保存しない
+            localStorage.setItem('orderData', evt.data);
+          }
+        }
       });
       setInterval( () => {
         ws.send(JSON.stringify({text: "dumy"}))
