@@ -20,7 +20,7 @@
   </head>
   <body>
     <div id="app">
-      <v-loading :show="hoge"></v-loading>
+      <v-loading :show="loadingIcon"></v-loading>
 
       <div class="order" v-show="orderWindow">
         <h1>注文</h1>
@@ -110,16 +110,12 @@
 
   Vue.component('v-loading', {
     props: {
-      text: {
-        default: 'ロード中...',
-        type: String
-      },
       show: {
         default: false,
         type: Boolean
       }
     },
-    template: '<div v-if="show"><img src="/images/ajax-loader.gif">&nbsp;<span v-text="text"></span></div>'
+    template: '<div v-if="show" id="loader-bg"><img src="./assets/images/loading.gif"></div>'
   });
 
   var vm = new Vue({
@@ -129,7 +125,7 @@
       determinationWindow: false,
       confirmationSubmitDisabled: true,
       orderSubmitDisabled: false,
-      hoge: true,
+      loadingIcon: true,
       orderedData: {
         order: {},
         counter: {},
@@ -188,6 +184,7 @@
       let url = config.url(location.protocol) + '/products';
       axios.get(url).then( response => {
         vm.products = response.data;
+        vm.loadingIcon = false;
       }).catch( err => {
         console.log(err);
       }).then( () => {
