@@ -95,7 +95,6 @@
         <p>伝票番号 {{ orderedData.counter.receipt_number }} 番になります</p>
       </div> <!-- .determination -->
 
-      <h4>{{ status }}</h4>
       <a href="index.html">戻る</a>
     </div> <!-- #app -->
   </body>
@@ -122,7 +121,6 @@
       wait_time: "",
       nowTime: "10:00:00",
       totalAmount: 0,
-      status: "",
       msg: "",
     },
     methods: {
@@ -183,6 +181,7 @@
         ws = new WebSocket(url);
         resolve();
       }).then( () =>  {
+
         ws.onopen = () => {
           vm.confirmationSubmitDisabled = false;
           if ( localStorage.orderData ) { //注文履歴の存在
@@ -191,10 +190,12 @@
             vm.determinationWindow = true; // 注文確定画面表示
           }
         }
+
         ws.onclose = () => {
-          vm.status = "サーバーとの接続が切断されました。ブラウザを再更新してください";
           vm.confirmationSubmitDisabled = true; //注文ボタン無効化
+          alert("サーバーとの接続が切断されました。ブラウザを再更新します");
         }
+
         ws.onmessage = evt => {
           vm.orderedData = JSON.parse(evt.data);
           if ( vm.orderedData.client_id === clientId ) { //この端末で注文されたデータか確認
@@ -203,13 +204,14 @@
               location.reload();
             } else {
               localStorage.setItem('orderData', evt.data);
-              vm.orderWindow = false;
-              vm.determinationWindow = true; //注文確定画面表示
+              location.reload()
             }
           }
         }
+
       });
-      setInterval( () => {
+
+      setInterval( () => { // heroku 対策
         ws.send(JSON.stringify({text: "dumy"}))
         console.log("send")
       }, 15000);
