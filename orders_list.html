@@ -53,6 +53,8 @@
               </ul>
               <p>注文時間: {{ new Date(order.order.created_at).toLocaleTimeString() }}</p>
               <p>現在のステータス {{ order.order.status }}</p>
+              <p v-if="order.submitted_person"><span class="badge badge-success">作成したキャスト {{ order.submitted_person.name }}</span></p>
+              <p v-else> <span class="badge badge-danger">予約注文</span> </p>
               <!-- <p>合計{{order.products.length * Number(order.products.) 200}}円</p> -->
           </div> <!-- div.orders.col-md-4 -->
         </div> <!-- div.row -->

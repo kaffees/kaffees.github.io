@@ -23,7 +23,7 @@
       <v-loading :show="loadingIcon"></v-loading>
 
       <div class="order" v-show="orderWindow">
-        <h1>注文</h1>
+        <h1>注文  <span class="badge badge-pill badge-primary" v-if="cast.name">{{ cast.name }}</span></h1>
         <div class="form-group row" v-for="product in products" v-if="productsSwitch(product)">
           <label for="inputCaffeeBlend" class="col-sm-4 col-form-label"> {{ product.name }} ({{ product.price }}円) </label>
           <div class="col-sm-8">
@@ -136,6 +136,11 @@
         products: {},
       },
       products: {},
+      cast: {
+        name: localStorage.userName,
+        role: localStorage.userRole,
+        token: localStorage.userToken,
+      },
       wait_time: "",
       nowTime: "10:00:00",
       totalAmount: 0,
@@ -169,12 +174,12 @@
       },
       submit() { // 注文確定ボタン
         data = JSON.stringify({
+          submitCast: vm.cast.token,
           clientId: clientId,
           products: vm.products,
           wait_time: vm.wait_time,
           });
         ws.send(data);
-        
       },
       productsSwitch(product) {
         if ( !(localStorage.userToken) ) {
