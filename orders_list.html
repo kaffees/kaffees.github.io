@@ -27,35 +27,36 @@
       <div class="container">
         <div class="row">
           <div class="orders col-md-4 card" v-for="order in orders" style="padding: 0.5em;" v-if="hoge(order.order.status)">
-              <div class="btn-group mx-auto" role="group" v-if="!(user.role == 'normal')">
-                <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Normal')" v-show="role('admin')">
-                  無効化
-                </button>
-                <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Created')" v-show="role('kitchen')">
-                  作成済み
-                </button>
-                <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Serviced')" v-show="role('provider')">
-                  提供済み
-                </button>
-                <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Calculated')" v-show="role('counter')">
-                  会計済み
-                </button>
-                <button type="button" class="btn btn-danger" v-on:click="action(order.order.id, 'Destroy')" v-show="role('admin')">
-                  削除
-                </button>
-              </div> <!-- div.btn-group.mx-auto -->
-              <p>待ち番号: {{order.counter.receipt_number}}</p>
-              <p>受け取り指定時間: {{ new Date(order.order.wait_time).toLocaleTimeString() }}</p>
-              <ul>
-                <li v-for=" product in order.products ">
-                  {{ product.name }}
-                </li>
-              </ul>
-              <p>注文時間: {{ new Date(order.order.created_at).toLocaleTimeString() }}</p>
-              <p>現在のステータス {{ order.order.status }}</p>
-              <p v-if="order.submitted_person"><span class="badge badge-success">作成したキャスト {{ order.submitted_person.name }}</span></p>
-              <p v-else> <span class="badge badge-danger">予約注文</span> </p>
-              <!-- <p>合計{{order.products.length * Number(order.products.) 200}}円</p> -->
+            <div class="btn-group mx-auto" role="group" v-if="!(user.role == 'normal')">
+              <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Normal')" v-show="role('admin')">
+                無効化
+              </button>
+              <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Created')" v-show="role('kitchen')">
+                作成済み
+              </button>
+              <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Serviced')" v-show="role('provider')">
+                提供済み
+              </button>
+              <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Calculated')" v-show="role('counter')">
+                会計済み
+              </button>
+              <button type="button" class="btn btn-danger" v-on:click="action(order.order.id, 'Destroy')" v-show="role('admin')">
+                削除
+              </button>
+            </div> <!-- div.btn-group.mx-auto -->
+            <p>
+            待ち番号: {{order.counter.receipt_number}}
+            <span class="badge badge-success" v-if="order.submitted_person">{{ order.submitted_person.name }}</span>
+            </p>
+            <p class="badge badge-danger" v-if="!(order.submitted_person)">受け取り指定時間: {{ new Date(order.order.wait_time).toLocaleTimeString() }}</p>
+            <ul>
+              <li v-for=" product in order.products ">
+                {{ product.name }}
+              </li>
+            </ul>
+            <p>注文確定時間: {{ new Date(order.order.created_at).toLocaleTimeString() }}</p>
+            <p v-show="role('admin')" >現在のステータス {{ order.order.status }}</p>
+            <!-- <p>合計{{order.products.length * Number(order.products.) 200}}円</p> -->
           </div> <!-- div.orders.col-md-4 -->
         </div> <!-- div.row -->
       </div> <!-- div.container -->
@@ -95,15 +96,15 @@
           switch (status) { //注文のステータス
             case 'normal':
               return role == 'kitchen'
-              break;
+                break;
             case 'created': //kitchen
               //作成済みの注文はキッチン担当の場合見せない
               return !(role == 'kitchen')
-              break;
+                break;
             case 'serviced': //provider
               //作成後提供された注文はキッチンとフロアーは見せない
               return !(role == 'kitchen' || role == 'provider')
-              break;
+                break;
             case 'calculated': //counter
               // calculated
               return false //誰も見れない
