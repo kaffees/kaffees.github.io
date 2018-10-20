@@ -18,6 +18,7 @@
   </head>
   <body>
     <div id="app" class="orders_list">
+      <v-loading :show="loadingIcon"></v-loading>
       <a href="#" v-on:click="backToSystem"> System &gt; OrdersList </a><br><br>
       <div class="row">
         <h1 class="col-md-8">Orders List</h1>
@@ -65,12 +66,28 @@
   <script>
   var ws;
   let auth = new Authentication;
+
+  Vue.component('v-loading', {
+    props: {
+      show: {
+        default: false,
+        type: Boolean
+      }
+    },
+    template: '<transition name="fade"><div v-if="show" id="loader-bg"><img src="./assets/images/loading2.gif"></div></transition>'
+  });
+
   var vm = new Vue({
     el: '#app',
     data: {
-      user: {},
+      user: {
+        name:  localStorage.userName,
+        role:  localStorage.userRole,
+        token: localStorage.userToken
+      },
       orders: {},
-      status: ''
+      status: '',
+      loadingIcon: true,
     },
     methods: {
       role(work) {
@@ -131,11 +148,7 @@
           axios.get(url).then( res => {
             console.log(res.data);
             vm.orders = res.data;
-            vm.user = {
-              name:  localStorage.userName,
-              role:  localStorage.userRole,
-              token: localStorage.userToken
-            }
+            vm.loadingIcon = false;
           }).catch( err => {
             alert(err.response.statusText)
           });
