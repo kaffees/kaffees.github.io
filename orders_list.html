@@ -28,23 +28,32 @@
       <div class="container">
         <div class="row">
           <div class="orders col-md-4 card" v-for="order in orders" style="padding: 0.5em;" v-if="hoge(order.order.status)">
-            <div class="btn-group mx-auto" role="group" v-if="!(user.role == 'normal')">
-              <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Normal')" v-show="role('admin')">
-                無効化
+
+            <!-- action buttons -->
+            <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Created')" v-show="user.role == 'kitchen'">
+              作成済み
+            </button>
+            <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Serviced')" v-show="user.role == 'provider'">
+              提供済み
+            </button>
+            <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Calculated')" v-show="user.role == 'counter'">
+              会計済み
+            </button>
+
+            <div class="dropdown" v-show="user.role == 'admin'">
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                アクション
               </button>
-              <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Created')" v-show="role('kitchen')">
-                作成済み
-              </button>
-              <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Serviced')" v-show="role('provider')">
-                提供済み
-              </button>
-              <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Calculated')" v-show="role('counter')">
-                会計済み
-              </button>
-              <button type="button" class="btn btn-danger" v-on:click="action(order.order.id, 'Destroy')" v-show="role('admin')">
-                削除
-              </button>
-            </div> <!-- div.btn-group.mx-auto -->
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Normal')">無効化</a>
+                <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Created')">作成済み</a>
+                <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Serviced')">提供済み</a>
+                <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Calculated')">会計済み</a>
+                <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Destroy')">削除</a>
+              </div>
+            </div>
+            <!-- action buttons -->
+
             <p>
             待ち番号: {{order.counter.receipt_number}}
             <span class="badge badge-success" v-if="order.submitted_person">{{ order.submitted_person.name }}</span>
@@ -56,7 +65,7 @@
               </li>
             </ul>
             <p>注文確定時間: {{ new Date(order.order.created_at).toLocaleTimeString() }}</p>
-            <p v-show="role('admin')" >現在のステータス {{ order.order.status }}</p>
+            <p v-show="user.role == 'admin'" >現在のステータス {{ order.order.status }}</p>
             <!-- <p>合計{{order.products.length * Number(order.products.) 200}}円</p> -->
           </div> <!-- div.orders.col-md-4 -->
         </div> <!-- div.row -->
@@ -90,16 +99,6 @@
       loadingIcon: true,
     },
     methods: {
-      role(work) {
-        let role = vm.user.role;
-        if (role == work || role == 'admin'){
-          return true
-        } else if (role == 'admin') {
-          return true
-        } else {
-          return false
-        }
-      },
       action(id, action) {
         ws.send(JSON.stringify({
           order_id: id,
