@@ -54,7 +54,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="confirmationModalTitle">確認画面</h5>
+              <h3 class="modal-title" id="confirmationModalTitle">確認画面</h3>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -70,9 +70,13 @@
                 <h5>
                   <span> 合計金額 {{ totalAmount }}円 </span> <br><br>
                   <span v-if="wait_time"> 受け取り指定時間 {{ wait_time }} </span> 
-                  <span v-else> 5分以内の準備</span>
+                  <span v-else> すぐの受け取り(XXX分目安)</span>
                 </h5>
-                <p>上記の内容で注文内容はよろしいですか？</p>
+                <p>上記の内容で注文内容はよろしいでしょうか<br>
+                確定後の変更はいたしかねます</p>
+                <p>予約注文の場合店内の席に余裕がない場合<br>
+                店内にご案内することができない可能性があります。<br>
+                予めご了承ください</p>
                 <p class="blockquote-footer">注文を確定すると<a href="agreement.html" target="_blank" >利用規約</a>を同意したこととなります</p>
               </div> <!-- v-if='!msg' -->
               <div class="modal-footer">
@@ -93,12 +97,15 @@
             {{ order.name }}
           </ul>
         </ol>
-        <p v-if="orderedData.order.wait_time">受け取り時間 {{ new Date(orderedData.order.wait_time).toLocaleTimeString() }}</p>
+        <p v-if="orderedData.order.wait_time">
+        受け取り目安時間 {{ new Date(orderedData.order.wait_time).toLocaleString() }}
+        </p>
         <p v-else> 受け取り時間指定なし</p>
         <p>伝票番号 {{ orderedData.counter.receipt_number }} 番になります</p>
       </div> <!-- .determination -->
-
-      <a href="index.html">戻る</a>
+      <br>
+      <a href="system.html" v-if="cast.token">戻る</a>
+      <a href="index.html" v-else>戻る</a>
     </div> <!-- #app -->
   </body>
 

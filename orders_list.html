@@ -58,15 +58,15 @@
             待ち番号: {{order.counter.receipt_number}}
             <span class="badge badge-success" v-if="order.submitted_person">{{ order.submitted_person.name }}</span>
             </p>
-            <p class="badge badge-danger" v-if="!(order.submitted_person)">受け取り指定時間: {{ new Date(order.order.wait_time).toLocaleTimeString() }}</p>
+            <p class="badge badge-danger" v-if="!(order.submitted_person) ">受け取り指定時間: {{ new Date(order.order.wait_time).toLocaleTimeString() }}</p>
             <ul>
               <li v-for=" product in order.products ">
                 {{ product.name }}
               </li>
             </ul>
-            <p>注文確定時間: {{ new Date(order.order.created_at).toLocaleTimeString() }}</p>
-            <p v-show="user.role == 'admin'" >現在のステータス {{ order.order.status }}</p>
-            <!-- <p>合計{{order.products.length * Number(order.products.) 200}}円</p> -->
+            <p>注文確定時間: {{ new Date(order.order.created_at).toLocaleString() }}</p>
+            <strong v-show="user.role == 'admin'" >現在のステータス {{ order.order.status }}</strong>
+            <strong v-show="user.role == 'counter'">合計{{ totalAmount(order.products) }}円</strong>
           </div> <!-- div.orders.col-md-4 -->
         </div> <!-- div.row -->
       </div> <!-- div.container -->
@@ -99,6 +99,14 @@
       loadingIcon: true,
     },
     methods: {
+      totalAmount(products) {
+        let num = 0;
+        for (key in products) {
+          let product = products[key];
+          num += product.price;
+        }
+        return num;
+      },
       action(id, action) {
         ws.send(JSON.stringify({
           order_id: id,
