@@ -224,24 +224,34 @@
 
         ws.onclose = () => {
           vm.confirmationSubmitDisabled = true; //注文ボタン無効化
-          alert("サーバーとの接続が切断されました。ブラウザを再更新します");
+          alert("サーバーとの接続が切断されました。");
         }
 
         ws.onmessage = evt => {
           let data = JSON.parse(evt.data);
-          if ( data.client_id === clientId ) { //この端末で注文されたデータか確認
-            if ( localStorage.userToken ) { //ゲストの場合注文完了画面に移動
-              alert("受け取り番号: " + data.counter.receipt_number + "番をお客様に渡してください")
-              location.reload();
-            } else {
-              localStorage.setItem('orderData', evt.data);
-              location.reload()
-            }
+          switch(data.status) {
+            case 403:
+              alert("1端末で注文できる回数は1回までです")
+              ws.close()
+              break;
+            case 500:
+              alert("Internal server error")
+              ws.close()
+              break;
+            default:
+              if ( data.client_id === clientId ) { //この端末で注文されたデータか確認
+                if ( localStorage.userToken ) { //ゲストの場合注文完了画面に移動
+                  alert("受け取り番号: " + data.counter.receipt_number + "番をお客様に渡してください")
+                  location.reload();
+                } else {
+                  localStorage.setItem('orderData', evt.data);
+                  location.reload()
+                }
+              }
+              break;
           }
         }
-
       });
-
       setInterval( () => { // heroku 対策
         ws.send(JSON.stringify({text: "dumy"}))
         console.log("send")
