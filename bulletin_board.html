@@ -10,6 +10,7 @@
     <script src="./assets/js/axios.min.js"></script>
     <script type="text/javascript" src="./assets/js/config.js"></script>
     <script type="text/javascript" src="./assets/js/auth.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.14.1/lodash.min.js"></script>
     <!-- Bootstrap -->
     <link rel="stylesheet" href="./assets/bootstrap/css/bootstrap.min.css">
     <script src="./assets/js/jquery-3.3.1.min.js"></script>
@@ -24,9 +25,8 @@
         <h1 class="col-md-8">Bulletin board</h1>
       </div>
       <div class="container">
-        <div class="row">
-          <div class="orders col-md-4 card" v-for="order in orders" style="padding: 0.5em;" v-if="order.order.status == 'created' && !(order.submitted_person) ">
-
+        <transition-group name="flip-list" tag="div" class="row">
+          <li class="orders col-md-4 card" v-for="(order, index) in orders" :key="index" style="padding: 0.5em;" v-if="order.order.status == 'created' && !(order.submitted_person) ">
             <h1> 待ち番号: {{order.counter.receipt_number}} </h1>
             <p class="badge badge-danger" v-if="!(order.submitted_person)">受け取り指定時間: {{ new Date(order.order.wait_time).toLocaleTimeString() }}</p>
             <ul>
@@ -34,10 +34,9 @@
                 {{ product.name }}
               </li>
             </ul>
-            <!-- <p>合計{{order.products.length * Number(order.products.) 200}}円</p> -->
-          </div> <!-- div.orders.col-md-4 -->
-        </div> <!-- div.row -->
-      </div> <!-- div.container -->
+      </div> <!-- div.orders.col-md-4 -->
+        </transition-group>
+    </div> <!-- div.container -->
     </div> <!-- div#app.system -->
   </body>
   <script>
@@ -126,4 +125,9 @@
     }
   })
   </script>
+  <style>
+  .flip-list-move {
+      transition: transform 1s;
+    }
+  </style>
 </html>
