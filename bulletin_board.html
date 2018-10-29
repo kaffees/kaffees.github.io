@@ -22,13 +22,13 @@
       <v-loading :show="loadingIcon"></v-loading>
       <a href="#" v-on:click="backToSystem"> System &gt; Bulletin board </a><br><br>
       <div class="row">
-        <h1 class="col-md-8">Bulletin board</h1>
+        <h1 class="col-md-8">受取可能な予約注文一覧</h1>
       </div>
       <div class="container">
         <transition-group name="flip-list" tag="div" class="row">
           <li class="orders col-md-4 card" v-for="(order, index) in orders" :key="index" style="padding: 0.5em;" v-if="order.order.status == 'created' && !(order.submitted_person) ">
             <h1> 待ち番号: {{order.counter.receipt_number}} </h1>
-            <p class="badge badge-danger" v-if="!(order.submitted_person)">受け取り指定時間: {{ new Date(order.order.wait_time).toLocaleTimeString() }}</p>
+            <h2> <span class="badge badge-danger" v-if="!(order.submitted_person)">受け取り指定時間: {{ new Date(order.order.wait_time).toLocaleTimeString() }}</span></h2>
             <ul>
               <li v-for=" product in order.products ">
                 {{ product.name }}
