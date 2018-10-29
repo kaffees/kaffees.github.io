@@ -10,6 +10,7 @@
     <script src="./assets/js/axios.min.js"></script>
     <script type="text/javascript" src="./assets/js/config.js"></script>
     <script type="text/javascript" src="./assets/js/auth.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/1.2.3/velocity.min.js"></script>
     <!-- Bootstrap -->
     <link rel="stylesheet" href="./assets/bootstrap/css/bootstrap.min.css">
     <script src="./assets/js/jquery-3.3.1.min.js"></script>
@@ -25,50 +26,54 @@
         <h4 class="col-md-4">{{ user.name }} ( {{ user.role }} ) <a href="#" class="badge badge-info" v-on:click="logout">Logout</a> </h4>
       </div>
       <p>{{ status }}</p>
+      <div class="form-group">
+        <input type="number" class="form-control"  placeholder="Search" v-model.number="searchWord">
+        <small id="emailHelp" class="form-text text-muted">検索したい番号札の番号を入れてください</small>
+      </div>
       <div class="container">
-        <div class="row">
-          <div class="orders col-md-4 card" v-for="order in sortOrders" :key="order.id" style="padding: 0.5em;" v-if="hoge(order.order.status)">
+        <transition-group name="staggered-fade" tag="div" class="row" v-bind:css="false" v-on:before-enter="beforeEnter" v-on:enter="enter" v-on:leave="leave" >
+          <div class="orders col-md-4 card" v-for="(order, index) in sortOrders" :key="index" style="padding: 0.5em;" v-if="hoge(order.order.status)">
 
             <!-- action buttons -->
-            <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Created')" v-show="user.role == 'kitchen'">
-              作成済み
-            </button>
-            <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Serviced')" v-show="user.role == 'provider'">
-              提供済み
-            </button>
-            <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Calculated')" v-show="user.role == 'counter'">
-              会計済み
-            </button>
+          <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Created')" v-show="user.role == 'kitchen'">
+            作成済み
+          </button>
+          <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Serviced')" v-show="user.role == 'provider'">
+            提供済み
+          </button>
+          <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Calculated')" v-show="user.role == 'counter'">
+            会計済み
+          </button>
 
-            <div class="dropdown" v-show="user.role == 'admin'">
-              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                アクション
-              </button>
-              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Normal')">無効化</a>
-                <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Created')">作成済み</a>
-                <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Serviced')">提供済み</a>
-                <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Calculated')">会計済み</a>
-                <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Destroy')">削除</a>
-              </div>
+          <div class="dropdown" v-show="user.role == 'admin'">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              アクション
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Normal')">無効化</a>
+              <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Created')">作成済み</a>
+              <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Serviced')">提供済み</a>
+              <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Calculated')">会計済み</a>
+              <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Destroy')">削除</a>
             </div>
-            <!-- action buttons -->
+          </div>
+          <!-- action buttons -->
 
-            <p>
-            待ち番号: {{order.counter.receipt_number}}
-            <span class="badge badge-success" v-if="order.submitted_person">{{ order.submitted_person.name }}</span>
-            </p>
-            <p class="badge badge-danger" v-if="!(order.submitted_person) ">受け取り指定時間: {{ new Date(order.order.wait_time).toLocaleTimeString() }}</p>
-            <ul>
-              <li v-for=" product in order.products ">
-                {{ product.name }}
-              </li>
-            </ul>
-            <p>注文確定時間: {{ new Date(order.order.created_at).toLocaleString() }}</p>
-            <strong v-show="user.role == 'admin'" >現在のステータス {{ order.order.status }}</strong>
-            <strong v-show="user.role == 'counter'">合計{{ totalAmount(order.products) }}円</strong>
+          <p>
+          待ち番号: {{order.counter.receipt_number}}
+          <span class="badge badge-success" v-if="order.submitted_person">{{ order.submitted_person.name }}</span>
+          </p>
+          <p class="badge badge-danger" v-if="!(order.submitted_person) ">受け取り指定時間: {{ new Date(order.order.wait_time).toLocaleTimeString() }}</p>
+          <ul>
+            <li v-for=" product in order.products ">
+              {{ product.name }}
+            </li>
+          </ul>
+          <p>注文確定時間: {{ new Date(order.order.created_at).toLocaleString() }}</p>
+          <strong v-show="user.role == 'admin'" >現在のステータス {{ order.order.status }}</strong>
+          <strong v-show="user.role == 'counter'">合計{{ totalAmount(order.products) }}円</strong>
           </div> <!-- div.orders.col-md-4 -->
-        </div> <!-- div.row -->
+        </transition-group>
       </div> <!-- div.container -->
     </div> <!-- div#app.system -->
   </body>
@@ -79,8 +84,8 @@
   Vue.component('v-loading', {
     props: {
       show: {
-        default: false,
-        type: Boolean
+ default: false,
+   type: Boolean
       }
     },
     template: '<transition name="fade"><div v-if="show" id="loader-bg"><img src="./assets/images/loading2.gif"></div></transition>'
@@ -94,6 +99,7 @@
         role:  localStorage.userRole,
         token: localStorage.userToken
       },
+      searchWord: null,
       orders: [],
       status: '',
       loadingIcon: true,
@@ -152,6 +158,30 @@
       logout() {
         localStorage.clear()
         window.location.href = 'login.html'
+      },
+      beforeEnter: function (el) {
+        el.style.opacity = 0
+          el.style.height = 0
+      },
+      enter: function (el, done) {
+        var delay = el.dataset.index * 150
+          setTimeout(function () {
+            Velocity(
+              el,
+              { opacity: 1, height: '18em' },
+              { complete: done }
+            )
+          }, delay)
+      },
+      leave: function (el, done) {
+        var delay = el.dataset.index * 150
+          setTimeout(function () {
+            Velocity(
+              el,
+              { opacity: 0, height: 0 },
+              { complete: done }
+            )
+          }, delay)
       }
     },
     mounted: () => {
@@ -215,11 +245,18 @@
     },  
     computed: {
       sortOrders: function() {
+        let vm = this;
         let data = this.orders;
         data.sort( (a, b) => {
           return (new Date(a.order.wait_time) > new Date(b.order.wait_time) ? 1 : -1);
         });
-        return data
+        if ( vm.searchWord == null || vm.searchWord == 0 ) {
+          return data
+        } else {
+          return data.filter(function (item) {
+            return item.counter.receipt_number == vm.searchWord;
+          })
+        }
       }
     },
   })
