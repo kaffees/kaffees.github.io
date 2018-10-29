@@ -217,31 +217,37 @@
         }
         ws.onmessage = evt =>{
           let data = JSON.parse(evt.data);
-          let index = vm.getIndex(vm.orders, "id", data.order.id);
-          switch (data.action_performed){
-            case 'order_received':
-              vm.orders.push(data)
-              break;
-            case 'order_normaled':
-              Vue.set(vm.orders[index].order, 'status', data.order.status);
-              break;
-            case 'order_created':
-              Vue.set(vm.orders[index].order, 'status', data.order.status);
-              break;
-            case 'order_serviced':
-              Vue.set(vm.orders[index].order, 'status', data.order.status);
-              break;
-            case 'order_calculated':
-              Vue.set(vm.orders[index].order, 'status', data.order.status);
-              break;
-            case 'order_destroy':
-              Vue.delete(vm.orders, data.order.id)
-              break;
+          if (!(data.text)) {
+            let index = vm.getIndex(vm.orders, "id", data.order.id);
+            switch (data.action_performed){
+              case 'order_received':
+                vm.orders.push(data)
+                break;
+              case 'order_normaled':
+                Vue.set(vm.orders[index].order, 'status', data.order.status);
+                break;
+              case 'order_created':
+                Vue.set(vm.orders[index].order, 'status', data.order.status);
+                break;
+              case 'order_serviced':
+                Vue.set(vm.orders[index].order, 'status', data.order.status);
+                break;
+              case 'order_calculated':
+                Vue.set(vm.orders[index].order, 'status', data.order.status);
+                break;
+              case 'order_destroy':
+                Vue.delete(vm.orders, data.order.id)
+                break;
+            }
           }
         }
         ws.onerror = error => {
           console.error("Error:" + error);
         }
+        setInterval( () => { // heroku 対策
+          ws.send(JSON.stringify({text: "dumy"}))
+          console.log("send")
+        }, 15000);
       })
     },  
     computed: {

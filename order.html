@@ -256,10 +256,6 @@
           }
         }
       });
-      setInterval( () => { // heroku 対策
-        ws.send(JSON.stringify({text: "dumy"}))
-        console.log("send")
-      }, 15000);
     }
   })
 
