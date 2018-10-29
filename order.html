@@ -43,7 +43,7 @@
         <div class="form-group row" v-if="!(cast.token)">
           <label for="inputTime" class="col-sm-4 col-form-label">受け取りの時間を指定する</label>
           <div class="col-sm-5">
-            <input type="text" id="alarm" class="form-control" v-model="wait_time"/>
+            <input type="text" id="alarm" class="form-control"/>
           </div>
           <div class="col-sm-3">に受け取り</div>
         </div> <!-- form-group row -->
@@ -168,8 +168,9 @@
             vm.totalAmount += orders.price * orders.piece;
           }
         }
+        vm.wait_time = $("input#alarm").val();
 
-        vm.wait_time = $("input.timepicker").val();
+        // vm.wait_time = $("input.timepicker").val();
 
         if(0 < num && num <= 4){
           vm.orderSubmitDisabled = false;
@@ -263,12 +264,11 @@
   })
 
   $( "#alarm" ).timeDropper({
-
     //機能オプション
     autoswitch: false,          //クリック位置移動
     meridians: false,           //12時間 / 24時間表示
-    format: "hh:mm",           //時刻フォーマット
-    mousewheel: false,          //マウスホイール可否
+    format: "HH:mm",            //時刻フォーマット
+    mousewheel: true,          //マウスホイール可否
     init_animation: "fadeIn",   //初期アニメーション
     setCurrentTime: true,       //現在時刻の設定
 
@@ -277,7 +277,6 @@
     textColor: "#555555",       //設定後の文字
     backgroundColor: "#ffffff", //背景
     borderColor: "#1977cc"      //枠線
-
   });
   </script>
   </html>
