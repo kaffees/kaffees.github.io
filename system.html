@@ -85,7 +85,7 @@
     },
     methods: {
       logout() {
-        localStorage.clear()
+        localStorage.removeItem("userToken")
         window.location.href = 'login.html'
       }
     },

@@ -13,7 +13,7 @@ class Authentication {
         callback(true)
       }).catch( err => {
         console.error("The Expired Token");
-        localStorage.clear();
+        localStorage.removeItem("userToken");
         callback(false)
       });
     } else {
@@ -36,7 +36,7 @@ class Authentication {
   }
 
   logout() {
-    localStorage.clear()
+    localStorage.removeItem("userToken")
   }
 
 }

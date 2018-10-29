@@ -156,7 +156,8 @@
         window.location.href = 'system.html'
       },
       logout() {
-        localStorage.clear()
+        localStorage.removeItem("userToken")
+
         window.location.href = 'login.html'
       },
       beforeEnter: function (el) {
