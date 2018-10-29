@@ -1,0 +1,142 @@
+body{
+	margin: 0;
+}
+
+.logos{
+  position: absolute;
+  text-align: center;
+}
+
+.partition{
+  position: absolute;
+  top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+margin: auto;
+}
+
+.menus{
+  display: none;
+}
+.wall-paper{
+  width: 100vw;
+  height: 100vh;
+  background: white;
+}
+
+@keyframes door-open {
+  0% { transform: rotate(0deg);}
+  20% { transform: rotate(0deg);}
+  80% { transform: rotateY(-45deg);opacity:100;}
+  100% {transform: rotateY(-60deg); opacity:0;}
+}
+
+.parent-door,.door {
+  width: 100vw;
+  height: 100vh;
+  transform-origin: right;
+  -webkit-animation: door-open 1.5s linear 0s forwards;
+  animation: door-open 1.5s linear 0s forwards;
+  z-index: 4;
+  position: absolute;
+}
+.parent-door {
+  perspective: 1000px;
+  position:  fixed;
+}
+.welcome {
+  -webkit-animation: down-welcome 3.0s linear 0s forwards;
+  animation: down-welcome 3.0s linear 0s forwards;
+  z-index: 1;
+  text-align: center;
+  margin:auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+@keyframes down-welcome {
+  0% { transform: translate(0, -250%);}
+  100% { transform: translate(0, -10%);}
+}
+.logo {
+  animation-delay: 2s;
+  text-align: center;
+}
+@keyframes logo-in {
+  50% { opacity: 0; }
+  50% { opacity: 0; }
+  100% { opacity: 100; }
+}
+
+.button{
+  opacity: 0;
+  -webkit-animation: logo-in 3.0s linear 0s forwards;
+  animation: logo-in 3.0s linear 0s forwards;
+  width: 100vw;
+  height: 15vh;
+  position: fixed;
+  bottom: 0;
+  color: #eeeeee;
+  background-color: #2b3e2a;
+  z-index: 4;
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.memu {
+  z-index: 3;
+}
+/* .flag{
+  width: 10px;
+  height: 10px;
+  position: fixed;
+  z-index: 2;
+  top:0;
+  right:10vw;
+} */
+/* .cocoa,.matcha-latte,.rooibos-orange{
+  text-align: right;
+}
+.cocoa,.matcha-latte,.rooibos-orange{
+  text-align: right;
+}
+.cocoa,.matcha-latte,.rooibos-orange {
+  width: auto;
+  height: auto;
+  background: black;
+} */
+/* .coffee, .cocoa, .milk-tae, .matcha-latte, .earl-grey, .rooibos-orange{
+  position: absolute;
+} */
+/* .coffee{
+  position: absolute;
+  
+}
+.cocoa{
+  position: absolute;
+  
+} */
+.cocoa, .matcha-latte, .rooibos-orange{
+  text-align: right;
+  background-color: black;
+}
+.coffee, .milk-tae, .earl-grey{
+  
+}
+
+.cocoa-text, .matcha-latte-text, .rooibos-orange-text{
+  position: absolute;
+  color: gray;
+}
+.coffee-text, .milk-tae-text, .earl-grey-text{
+  position: absolute;
+  color: gray;
+  left: 50vw;
+}
+
+.space{
+  width: 100vw;
+  height: 15vh;
+}
