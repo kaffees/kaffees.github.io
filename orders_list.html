@@ -84,7 +84,7 @@
               <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Created')">作成済み</a>
               <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Serviced')">提供済み</a>
               <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Calculated')">会計済み</a>
-              <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Cancel')">キャンセル</a>
+              <a class="dropdown-item" href="#" data-toggle="modal" data-target="#cancelModal">キャンセル</a>
               <a class="dropdown-item" href="#" v-on:click="action(order.order.id, 'Destroy')">削除</a>
             </div>
           </div>
