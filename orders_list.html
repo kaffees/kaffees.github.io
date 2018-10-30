@@ -39,7 +39,7 @@
             作成済み
           </button>
 
-          <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#cancelModal">
+          <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#cancelModal" v-show="user.role == 'kitchen'">
             キャンセル
           </button>
 
