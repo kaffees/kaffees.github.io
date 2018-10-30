@@ -90,7 +90,7 @@
           </div>
           <!-- action buttons -->
           <p>
-          待ち番号: <span v-if="order.order.canceled_order_id ">{{ order.order.canceled_order_id}} ⇒ </span>{{order.counter.receipt_number}}
+          待ち番号: <span v-if="order.old_order ">{{ order.old_order.counter.receipt_number }} ⇒ </span>{{order.counter.receipt_number}} / {{ order.order.id }}
           <span class="badge badge-success" v-if="order.submitted_person">{{ order.submitted_person.name }}</span>
           </p>
           <p class="badge badge-danger" v-if="!(order.submitted_person) ">受け取り指定時間: {{ new Date(order.order.wait_time).toLocaleTimeString() }}</p>
@@ -281,11 +281,10 @@
                 Vue.delete(vm.orders, data.order.id)
                 break;
               case 'order_canceled':
-                let new_index = vm.getIndex(vm.orders, "id", data.new_order.order.id);
-                console.log(vm.orders[index].order);
-                console.log(vm.orders[new_index].order);
-                Vue.set(vm.orders[index].order,  'status',               data.order.status); //キャンセル元
-                Vue.set(vm.orders[new_index].order, 'canceled_order_id', data.counter.receipt_number); //キャンセル先
+                //受け取るのはnewOrderの中にold
+                let old_index = vm.getIndex(vm.orders, "id", data.old_order.order.id); //find index old_order
+                Vue.set(vm.orders[old_index].order,  'status',               data.old_order.order.status); //キャンセル元
+                vm.orders[index]['old_order'] = data.old_order;
                 break;
             }
           }
