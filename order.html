@@ -24,9 +24,16 @@
   <body>
     <div id="app">
       <v-loading :show="loadingIcon"></v-loading>
-
       <div class="order" v-show="orderWindow">
-        <h1>注文  <span class="badge badge-pill badge-primary" v-if="cast.name">{{ cast.name }}</span></h1>
+        <h1>注文  <span class="badge badge-pill badge-primary" v-if="cast.token">{{ cast.name }}</span></h1>
+
+        <div class="alert alert-warning alert-dismissible fade show" role="alert" v-for="log in logs">
+          {{ log }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
         <div class="form-group row" v-for="product in products" v-if="productsSwitch(product)">
           <label for="inputCaffeeBlend" class="col-sm-4 col-form-label"> {{ product.name }} ({{ product.price }}円) </label>
           <div class="col-sm-8">
@@ -96,15 +103,16 @@
       <div class="determination" v-show="determinationWindow">
         <h2>注文が確定いたしました</h2>
         <ol>
-          <ul v-for="order in orderedData.products">
+          <li v-for="order in orderedData.products">
             {{ order.name }}
-          </ul>
+          </li>
         </ol>
         <p v-if="orderedData.order.wait_time">
         受け取り目安時間 {{ new Date(orderedData.order.wait_time).toLocaleString() }}
         </p>
         <p v-else> 受け取り時間指定なし</p>
-        <p>伝票番号 {{ orderedData.counter.receipt_number }} 番になります</p>
+        <h3>伝票番号 {{ orderedData.counter.receipt_number }} 番になります</h3>
+        <small>現在の注文状況: {{ translateStatus(orderedData.order.status) }} </small>
       </div> <!-- .determination -->
       <br>
       <a href="system.html" v-if="cast.token">戻る</a>
@@ -151,6 +159,7 @@
         role: localStorage.userRole,
         token: localStorage.userToken,
       },
+      logs: [],
       wait_time: "",
       nowTime: "10:00:00",
       totalAmount: 0,
@@ -192,6 +201,17 @@
           });
         ws.send(data);
       },
+      translateStatus(status) {
+        switch (status) { //注文のステータス
+          case 'normal':
+            return '未手'
+            break;
+          case 'created': //kitchen
+            //作成済みの注文はキッチン担当の場合見せない
+            return "ご注文のお品は店舗にて保管されております"
+            break;
+        }
+      },
       productsSwitch(product) {
         if ( !(localStorage.userToken) ) {
           return !(product.staff_only)
@@ -219,10 +239,22 @@
 
         ws.onopen = () => {
           vm.confirmationSubmitDisabled = false;
-          if ( localStorage.orderData ) { //注文履歴の存在
-            vm.orderedData = JSON.parse(localStorage.orderData);
-            vm.orderWindow = false; // 注文画面非表示
-            vm.determinationWindow = true; // 注文確定画面表示
+          if ( !(vm.cast.token) ) {
+            new Promise( (resolve, reject) =>{
+              let url = config.url(location.protocol) + '/order-history';
+              axios.get(url).then( response => {
+                console.log(response.data);
+                resolve(response.data);
+              }).catch( err => {
+                alert('予約の注文データの取得を失敗しました')
+              })
+            }).then( data => {
+              if ( data.order ) { //注文履歴の存在
+                vm.orderedData = data;
+                vm.orderWindow = false; // 注文画面非表示
+                vm.determinationWindow = true; // 注文確定画面表示
+              }
+            })
           }
         }
 
@@ -243,12 +275,26 @@
               ws.close()
               break;
             default:
-              if ( data.client_id === clientId ) { //この端末で注文されたデータか確認
-                if ( localStorage.userToken ) { //ゲストの場合注文完了画面に移動
+              if ( !(data.text) && vm.cast.token && data.order.status == 'created' ) {
+                vm.logs.push("注文番号:" + data.counter.receipt_number + "が完成しました")
+              } else if ( data.client_id == clientId ) { //この端末で注文されたデータか確認
+                if ( vm.cast.token ) { //ゲストの場合注文完了画面に移動
                   alert("受け取り番号: " + data.counter.receipt_number + "番をお客様に渡してください")
-                  location.reload();
+                  // get Products(Menu)
+                  let url = config.url(location.protocol) + '/products';
+                  axios.get(url).then( response => {
+                    vm.products = response.data;
+                  }).catch( err => {
+                    alert('メニューの取得に失敗しました')
+                  })
                 } else {
-                  localStorage.setItem('orderData', evt.data);
+                  // let url = config.url(location.protocol) + '/products';
+                  // axios.get(url).then( response => {
+                  //   vm.products = response.data;
+                  // }).catch( err => {
+                  //   alert('メニューの取得に失敗しました')
+                  // })
+                  // localStorage.setItem('orderData', evt.data);
                   location.reload()
                 }
               }
