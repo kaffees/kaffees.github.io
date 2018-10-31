@@ -1,5 +1,6 @@
 body{
-	margin: 0;
+  margin: 0;
+  background-color: #ecc18c;
 }
 
 .logos{
@@ -14,6 +15,7 @@ left: 0;
 right: 0;
 bottom: 0;
 margin: auto;
+background-color: #fffab0;
 }
 
 .menus{
@@ -120,17 +122,18 @@ margin: auto;
 } */
 .cocoa, .matcha-latte, .rooibos-orange{
   text-align: right;
-  background-color: black;
 }
 .coffee, .milk-tae, .earl-grey{
-  
+  background-color: #f7f1e5;
 }
 
 .cocoa-text, .matcha-latte-text, .rooibos-orange-text{
+  font-size: 3em;
   position: absolute;
   color: gray;
 }
 .coffee-text, .milk-tae-text, .earl-grey-text{
+  font-size: 3em;
   position: absolute;
   color: gray;
   left: 50vw;
