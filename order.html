@@ -198,6 +198,7 @@
           clientId: clientId,
           products: vm.products,
           wait_time: vm.wait_time,
+          coupon: Boolean(sessionStorage.coupon)
         });
         ws.send(data);
       },

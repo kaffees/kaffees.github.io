@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <title>Kaffees - Coupon</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="./assets/images/favicon.ico" type="image/vnd.microsoft.icon">
+    <link rel="icon" href="./assets/images/favicon.ico" type="image/vnd.microsoft.icon">
+    <script src="./assets/js/vue.js"></script>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="./assets/bootstrap/css/bootstrap.min.css">
+    <script src="./assets/js/jquery-3.3.1.min.js"></script>
+    <script src="./assets/bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="./assets/stylesheets/base.css">
+  </head>
+  <body>
+    <div id="app">
+      <p>クーポンは会計時に適応されます。</p>
+      <p>注文画面では金額は引かれて表示されていません</p>
+      <p>注文されたすべての商品に対して50円引きが適応されます</p>
+      <p>上記に同意された場合は下記のボタンをクリックしてください</p>
+      <p class="blockquote-footer">クーポンを適応すると<a href="agreement.html" target="_blank" >利用規約</a>を同意したこととなります</p>
+      
+      <button type="button" class="btn btn-primary" v-on:click="submit" >
+        クーポンを適応
+      </button>
+    </div>
+  </body>
+  <script>
+  var vm = new Vue({
+    el: '#app',
+    data: {
+    },
+    methods: {
+      submit() {
+        sessionStorage.setItem('coupon', true)
+        if ( sessionStorage.coupon == "true" ){
+            window.location.href = 'order.html';
+        }
+      }
+    },
+    mounted: () => {
+    }
+  })
+  </script>
+</html>
