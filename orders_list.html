@@ -280,8 +280,8 @@
                 Vue.delete(vm.orders, data.order.id)
                 break;
               case 'order_canceled':
-                //受け取るのはnewOrderの中にold
-                let old_index = vm.getIndex(vm.orders, "id", data.old_order.order.id); //find index old_order
+                // 受け取るのはnewOrderの中にold
+                let old_index = vm.getIndex(vm.orders, "id", data.old_order.order.id); // find index old_order
                 Vue.set(vm.orders[old_index].order,  'status',               data.old_order.order.status); //キャンセル元
                 vm.orders[index]['old_order'] = data.old_order;
                 break;
