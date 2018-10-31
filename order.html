@@ -102,6 +102,7 @@
 
       <div class="determination" v-show="determinationWindow">
         <h2>注文が確定いたしました</h2>
+        <div class="alert alert-success" role="alert"> {{ translateStatus(orderedData.order.status) }} </div>
         <ol>
           <li v-for="order in orderedData.products">
             {{ order.name }}
@@ -112,7 +113,6 @@
         </p>
         <p v-else> 受け取り時間指定なし</p>
         <h3>伝票番号 {{ orderedData.counter.receipt_number }} 番になります</h3>
-        <small>現在の注文状況: {{ translateStatus(orderedData.order.status) }} </small>
       </div> <!-- .determination -->
       <br>
       <a href="system.html" v-if="cast.token">戻る</a>
@@ -133,8 +133,8 @@
   Vue.component('v-loading', {
     props: {
       show: {
-        default: false,
-        type: Boolean
+ default: false,
+   type: Boolean
       }
     },
     template: '<transition name="fade"><div v-if="show" id="loader-bg"><img src="./assets/images/loading2.gif"></div></transition>'
@@ -198,13 +198,13 @@
           clientId: clientId,
           products: vm.products,
           wait_time: vm.wait_time,
-          });
+        });
         ws.send(data);
       },
       translateStatus(status) {
         switch (status) { //注文のステータス
           case 'normal':
-            return '未手'
+            return '注文の作成はまだ開始されておりません'
             break;
           case 'created': //kitchen
             //作成済みの注文はキッチン担当の場合見せない
@@ -229,7 +229,7 @@
         console.log(err);
       }).then( () => {
         // always executed
-      });
+        });
 
       new Promise( (resolve, reject) => {
         let url = config.wsurl(location.protocol) + '/orders/create';
@@ -252,7 +252,7 @@
               if ( data.order ) { //注文履歴の存在
                 vm.orderedData = data;
                 vm.orderWindow = false; // 注文画面非表示
-                vm.determinationWindow = true; // 注文確定画面表示
+                  vm.determinationWindow = true; // 注文確定画面表示
               }
             })
           }
@@ -260,26 +260,21 @@
 
         ws.onclose = () => {
           vm.confirmationSubmitDisabled = true; //注文ボタン無効化
-          alert("サーバーとの接続が切断されました。");
+            alert("サーバーとの接続が切断されました。");
         }
 
         ws.onmessage = evt => {
           let data = JSON.parse(evt.data);
-          switch(data.status) {
-            case 403:
-              alert("1端末で注文できる回数は1回までです")
+          console.log(data);
+          switch(data.action_performed) {
+            case 'ip_address_block':
+              alert("予約後会計を済ませた端末のみ再度注文が可能です")
               ws.close()
               break;
-            case 500:
-              alert("Internal server error")
-              ws.close()
-              break;
-            default:
-              if ( !(data.text) && vm.cast.token && data.order.status == 'created' ) {
-                vm.logs.push("注文番号:" + data.counter.receipt_number + "が完成しました")
-              } else if ( data.client_id == clientId ) { //この端末で注文されたデータか確認
+            case 'order_received':
+              if ( data.client_id == clientId ) { //この端末で注文されたデータか確認
                 if ( vm.cast.token ) { //ゲストの場合注文完了画面に移動
-                  alert("受け取り番号: " + data.counter.receipt_number + "番をお客様に渡してください")
+                  alert("受け取り番号: " + data.counter.receipt_number + "番をお客様に渡してください");
                   // get Products(Menu)
                   let url = config.url(location.protocol) + '/products';
                   axios.get(url).then( response => {
@@ -288,15 +283,22 @@
                     alert('メニューの取得に失敗しました')
                   })
                 } else {
-                  // let url = config.url(location.protocol) + '/products';
-                  // axios.get(url).then( response => {
-                  //   vm.products = response.data;
-                  // }).catch( err => {
-                  //   alert('メニューの取得に失敗しました')
-                  // })
-                  // localStorage.setItem('orderData', evt.data);
-                  location.reload()
-                }
+                  vm.orderedData = data;
+                  vm.orderWindow = false; // 注文画面非表示
+                  vm.determinationWindow = true; // 注文確定画面表示
+                };
+              };
+              break;
+            case 'order_normaled':
+              if (data.order.id == vm.orderedData.order.id) {
+                Vue.set(vm.orderedData.order, 'status', data.order.status)
+              }
+              break;
+            case 'order_created':
+              if (vm.cast.token) {
+                vm.logs.push("注文番号:" + data.counter.receipt_number + "が完成しました");
+              } else if (data.order.id == vm.orderedData.order.id) {
+                Vue.set(vm.orderedData.order, 'status', data.order.status)
               }
               break;
           }
