@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <title>Kaffees - Order</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="./assets/images/favicon.ico" type="image/vnd.microsoft.icon">
+    <link rel="icon" href="./assets/images/favicon.ico" type="image/vnd.microsoft.icon">
+    <script src="./assets/js/vue.js"></script>
+    <script src="./assets/js/axios.min.js"></script>
+    <script src="./assets/js/random.js"></script>
+    <script type="text/javascript" src="./assets/js/config.js"></script>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="./assets/bootstrap/css/bootstrap.min.css">
+    <script src="./assets/js/jquery-3.3.1.min.js"></script>
+    <script src="./assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
+    <link rel="stylesheet" href="./assets/stylesheets/base.css">
+    <!-- timepicker -->
+    <script src="./assets/js/timedropper.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./assets/stylesheets/timedropper.min.css">
+  </head>
+  <body>
+    <div id="app">
+      <v-loading :show="loadingIcon"></v-loading>
+      <div class="order" v-show="orderWindow">
+        <h1>予約注文  <span class="badge badge-pill badge-primary" v-if="cast.token">{{ cast.name }}</span></h1>
+        <hr>
+        <p v-if="!(cast.token)">
+          本格的な珈琲や寒い日にぴったりなHOTなドリンクをご用意いたしました、
+          こちらでご注文いただくことで、他のクラスのブースを見ながらでも商品の注文でき、
+          受け取り時間を指定していただくと、その時間にお飲み物をご提供出来るよう、お飲み物をご用意いたします。
+        </p>
+        <smal>なお店内が大変混みあった場合ご提供に時間をいただく場合がございます。予めご了承ください。</smal>
+        <smal>また店内混み合いますとイートインでのお食事ができない場合がございますのでそちらの方もご了承ください</smal>
+
+        <div class="alert alert-warning alert-dismissible fade show" role="alert" v-for="log in logs">
+          {{ log }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="alert alert-success alert-dismissible fade show" role="alert" v-if=" !(cast.token) && coupon">
+          クーポンが適用されています
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+
+        <div class="form-group row" v-for="product in products" v-if="productsSwitch(product)">
+          <label for="inputCaffeeBlend" class="col-sm-4 col-form-label"> {{ product.name }} ({{ product.price }}円) </label>
+          <div class="col-sm-8">
+            <select class="form-control" id="input" v-model.number="product.piece">
+              <option selected>0</option>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+            </select>
+          </div> <!-- col-sm-8 -->
+        </div> <!-- form-group row -->
+
+        <hr>
+
+        <div class="form-group row" v-if="cast.token">
+          <label for="seats" class="col-sm-4 col-form-label">席</label>
+          <div class="col-sm-8">
+            <select class="form-control" id="input" v-model.number="seatNumber">
+              <option value="0" selected>--- 未選択 ---</option>
+              <option v-for="seat in seats" :value="seat.seat_number" >{{ seat.seat_number }}番席</option>
+            </select>
+          </div> <!-- col-sm-8 -->
+        </div> <!-- form-group row -->
+
+        <div class="form-group row" v-if="!(cast.token)">
+          <label for="inputTime" class="col-sm-4 col-form-label">受け取りの時間を指定する</label>
+          <div class="col-sm-5">
+            <input type="text" id="alarm" class="form-control"/>
+          </div>
+          <div class="col-sm-3">に受け取り</div>
+        </div> <!-- form-group row -->
+
+        <div v-if="cast.token">
+          <label><input type="checkbox" v-model="couponFlag">クーポン提示</label>
+        </div>
+
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#confirmationModal" v-bind:disabled="confirmationSubmitDisabled" v-on:click="confirmationSubmit">
+          確認画面にすすむ
+        </button>
+      </div> <!-- .order -->
+
+      <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 class="modal-title" id="confirmationModalTitle">確認画面</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div> <!-- modal-header -->
+            <div class="modal-body">
+              <h4 class="text-danger">{{ msg }}</h4>
+              <div v-if="!msg">
+                <ul>
+                  <li v-for="order in products" v-if="order.piece">
+                    {{ order.name }}: {{order.piece}} 杯 ({{ order.price }})円
+                  </li>
+                </ul>
+                <h5>
+                  <span> 合計金額 {{ totalAmount }}円 </span> <br><br>
+                  <span v-if="wait_time"> 受け取り指定時間 {{ wait_time }} </span> 
+                  <span v-else> すぐの受け取り(XXX分目安)</span>
+                </h5>
+                <p>上記の内容で注文内容はよろしいでしょうか<br>
+                確定後の変更はいたしかねます</p>
+                <p>予約注文の場合店内の席に余裕がない場合<br>
+                店内にご案内することができない可能性があります。<br>
+                予めご了承ください</p>
+                <p class="blockquote-footer">注文を確定すると<a href="agreement.html" target="_blank" >利用規約</a>を同意したこととなります</p>
+              </div> <!-- v-if='!msg' -->
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">注文を修正</button>
+                <button type="button" class="btn btn-primary" v-on:click="submit" data-dismiss="modal" v-bind:disabled="orderSubmitDisabled" >
+                  注文を確定
+                </button>
+              </div> <!-- div.modal-footer -->
+            </div> <!-- div.modal-body -->
+          </div> <!-- div.modal-content -->
+        </div> <!-- div.modal-dialog -->
+      </div> <!-- div.modal.fade -->
+
+      <div class="determination" v-show="determinationWindow">
+        <h2>注文が確定しました</h2>
+        <div class="alert alert-success" role="alert"> {{ translateStatus(orderedData.order.status) }} </div>
+        <ol>
+          <li v-for="order in orderedData.products">
+            {{ order.name }}
+          </li>
+        </ol>
+        <p v-if="orderedData.order.wait_time">
+        受け取り目安時間 {{ new Date(orderedData.order.wait_time).toLocaleString() }}
+        </p>
+        <p v-else> 受け取り時間指定なし</p>
+        <h3>伝票番号 {{ orderedData.counter.receipt_number }} 番になります</h3>
+        <small>時間になりましたら、一号館校舎三階(旧2-B)の予約受け取りカウンターにてお渡しさせていただきます
+      </div> <!-- .determination -->
+      <br>
+      <a href="system.html" v-if="cast.token">戻る</a>
+      <a href="index.html" v-else>戻る</a>
+    </div> <!-- #app -->
+  </body>
+
+  <style>
+
+  </style>
+
+  <script type="text/javascript">
+  var ws;
+  let config = new CONFIG();
+  let random = new Random();
+  let clientId = random.create();
+
+  Vue.component('v-loading', {
+    props: {
+      show: {
+ default: false,
+   type: Boolean
+      }
+    },
+    template: '<transition name="fade"><div v-if="show" id="loader-bg"><img src="./assets/images/loading2.gif"></div></transition>'
+  });
+
+  var vm = new Vue({
+    el: '#app',
+    data: {
+      orderWindow: true,
+      determinationWindow: false,
+      confirmationSubmitDisabled: true,
+      orderSubmitDisabled: false,
+      loadingIcon: true,
+      orderedData: {
+        order: {},
+        counter: {},
+        products: {},
+      },
+      products: {},
+      seats: {},
+      seatNumber: 0,
+      cast: {
+        name: localStorage.userName,
+        role: localStorage.userRole,
+        token: localStorage.userToken,
+      },
+      logs: [],
+      wait_time: "",
+      nowTime: "10:00:00",
+      totalAmount: 0,
+      msg: "",
+      coupon: Boolean(sessionStorage.coupon),
+      couponFlag: false
+    },
+    methods: {
+      confirmationSubmit() {
+        vm.totalAmount = 0;
+
+        let num = 0;
+        for (key in vm.products) {
+          let orders = vm.products[key];
+          num += orders.piece;
+          if ( orders.piece ) {
+            vm.totalAmount += orders.price * orders.piece;
+          }
+        }
+        vm.wait_time = $("input#alarm").val();
+
+        // vm.wait_time = $("input.timepicker").val();
+        if( vm.cast.token && vm.seatNumber == 0) {
+          vm.msg = '席番号を選択してください';
+          vm.orderSubmitDisabled = true;
+        } else {
+
+          if(0 < num && num <= 4){
+            vm.orderSubmitDisabled = false;
+            vm.msg = "";
+          } else if(num == 0) {
+            vm.msg = '注文を選択してください';
+            vm.orderSubmitDisabled = true;
+          } else {
+            vm.msg = '注文は一回に４杯まででおねがいします'
+              vm.orderSubmitDisabled = true;
+          }
+        } 
+      },
+      submit() { // 注文確定ボタン
+        if (vm.cast.token) {
+          sessionStorage.clear()
+        }
+        let coupon = false;
+        coupon = Boolean(sessionStorage.coupon);
+        coupon = ( vm.cast.token && vm.couponFlag );
+
+        data = JSON.stringify({
+          submitCast: vm.cast.token,
+          clientId: clientId,
+          products: vm.products,
+          wait_time: vm.wait_time,
+          coupon: coupon,
+          seat_number: vm.seatNumber
+        });
+        ws.send(data);
+      },
+      translateStatus(status) {
+        switch (status) { //注文のステータス
+          case 'normal':
+            return '注文の作成はまだ開始されておりません'
+            break;
+          case 'created': //kitchen
+            //作成済みの注文はキッチン担当の場合見せない
+            return "ご注文のお品は店舗にて保管されております"
+            break;
+        }
+      },
+      productsSwitch(product) {
+        if ( !(localStorage.userToken) ) {
+          return !(product.staff_only)
+        }
+        return true
+      }
+    },
+    mounted: () => {
+      // get Products(Menu)
+      let productsUrl = config.url(location.protocol) + '/products';
+      axios.get(productsUrl).then( response => {
+        vm.products = response.data;
+      }).catch( err => {
+        console.log(err);
+      });
+
+      let seatsUrl = config.url(location.protocol) + '/seats';
+      axios.get(seatsUrl).then( response => {
+        vm.seats = response.data;
+      }).catch( err => {
+        console.log(err);
+      })
+
+      new Promise( (resolve, reject) => {
+        let wsUrl = config.wsurl(location.protocol) + '/orders/create';
+        ws = new WebSocket(wsUrl);
+        resolve();
+      }).then( () =>  {
+
+        ws.onopen = () => {
+          vm.confirmationSubmitDisabled = false;
+          if ( !(vm.cast.token) ) {
+            new Promise( (resolve, reject) =>{
+              let orderHistoryUrl = config.url(location.protocol) + '/order-history';
+              axios.get(orderHistoryUrl).then( response => {
+                console.log(response.data);
+                resolve(response.data);
+              }).catch( err => {
+                alert('予約の注文データの取得を失敗しました')
+              })
+            }).then( data => {
+              if ( data.order ) { //注文履歴の存在
+                vm.orderedData = data;
+                vm.orderWindow = false; // 注文画面非表示
+                vm.determinationWindow = true; // 注文確定画面表示
+              }
+            })
+          }
+          vm.loadingIcon = false;
+        }
+
+        ws.onclose = () => {
+          vm.confirmationSubmitDisabled = true; //注文ボタン無効化
+            alert("サーバーとの接続が切断されました。");
+        }
+
+        ws.onmessage = evt => {
+          let data = JSON.parse(evt.data);
+          console.log(data);
+          switch(data.action_performed) {
+            case 'ip_address_block':
+              alert("予約後会計を済ませた端末のみ再度注文が可能です")
+              ws.close()
+              break;
+            case 'order_received':
+              if ( data.client_id == clientId ) { //この端末で注文されたデータか確認
+                if ( vm.cast.token ) { //ゲストの場合注文完了画面に移動
+                  alert("受け取り番号: " + data.counter.receipt_number + "番をお客様に渡してください");
+                  // get Products(Menu)
+                  let productsUrl = config.url(location.protocol) + '/products';
+                  axios.get(productsUrl).then( response => {
+                    vm.products = response.data;
+                  }).catch( err => {
+                    alert('メニューの取得に失敗しました')
+                  })
+                } else {
+                  vm.orderedData = data;
+                  vm.orderWindow = false; // 注文画面非表示
+                    vm.determinationWindow = true; // 注文確定画面表示
+                };
+              };
+              break;
+            case 'order_normaled':
+              if (data.order.id == vm.orderedData.order.id) {
+                Vue.set(vm.orderedData.order, 'status', data.order.status)
+              }
+              break;
+            case 'order_created':
+              if (vm.cast.token) {
+                vm.logs.push("注文番号:" + data.counter.receipt_number + "が完成しました");
+              } else if (data.order.id == vm.orderedData.order.id) {
+                Vue.set(vm.orderedData.order, 'status', data.order.status)
+              }
+              break;
+          }
+        }
+      });
+    }
+  })
+
+  $( "#alarm" ).timeDropper({
+    //機能オプション
+    autoswitch: false,          //クリック位置移動
+    meridians: false,           //12時間 / 24時間表示
+    format: "HH:mm",            //時刻フォーマット
+    mousewheel: true,          //マウスホイール可否
+    init_animation: "fadeIn",   //初期アニメーション
+    setCurrentTime: true,       //現在時刻の設定
+
+    //スタイルオプション
+    primaryColor: "#1977cc",    //設定中の文字
+    textColor: "#555555",       //設定後の文字
+    backgroundColor: "#ffffff", //背景
+    borderColor: "#1977cc"      //枠線
+  });
+  </script>
+</html>
