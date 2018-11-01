@@ -34,7 +34,7 @@
           </button>
         </div>
 
-        <div class="alert alert-success alert-dismissible fade show" role="alert" v-if="coupon">
+        <div class="alert alert-success alert-dismissible fade show" role="alert" v-if=" !(cast.token) && coupon">
           クーポンが適用されています
           <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
@@ -62,6 +62,11 @@
           </div>
           <div class="col-sm-3">に受け取り</div>
         </div> <!-- form-group row -->
+
+        <div v-if="cast.token">
+          <label><input type="checkbox" v-model="couponFlag">クーポン提示</label>
+        </div>
+
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#confirmationModal" v-bind:disabled="confirmationSubmitDisabled" v-on:click="confirmationSubmit">
           確認画面にすすむ
         </button>
@@ -171,7 +176,8 @@
       nowTime: "10:00:00",
       totalAmount: 0,
       msg: "",
-      coupon: Boolean(sessionStorage.coupon)
+      coupon: Boolean(sessionStorage.coupon),
+      couponFlag: false
     },
     methods: {
       confirmationSubmit() {
@@ -201,12 +207,19 @@
         }
       },
       submit() { // 注文確定ボタン
+        if (vm.cast.token) {
+          sessionStorage.clear()
+        }
+        let coupon = false;
+        coupon = Boolean(sessionStorage.coupon);
+        coupon = ( vm.cast.token && vm.couponFlag );
+
         data = JSON.stringify({
           submitCast: vm.cast.token,
           clientId: clientId,
           products: vm.products,
           wait_time: vm.wait_time,
-          coupon: Boolean(sessionStorage.coupon)
+          coupon: coupon
         });
         ws.send(data);
       },
