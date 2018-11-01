@@ -15,11 +15,10 @@
   </head>
   <body>
     <div id="app">
-      <p>クーポンは会計時に適応されます。</p>
-      <p>注文画面では金額は引かれて表示されていません</p>
-      <p>注文されたすべての商品に対して50円引きが適応されます</p>
-      <p>上記に同意された場合は下記のボタンをクリックしてください</p>
-      <p class="blockquote-footer">クーポンを適応すると<a href="agreement.html" target="_blank" >利用規約</a>を同意したこととなります</p>
+      <p>クーポンはお会計時に適用されます。</p>
+      <p>注文画面では金額は引かれて表示されていません。</p>
+      <p>ご注文されました商品それぞれに50円引きされます。</p>
+      <p class="blockquote-footer">クーポンを適用すると<a href="agreement.html" target="_blank" >利用規約</a>を同意したこととなります</p>
       
       <button type="button" class="btn btn-primary" v-on:click="submit" >
         クーポンを適応
@@ -35,7 +34,7 @@
       submit() {
         sessionStorage.setItem('coupon', true)
         if ( sessionStorage.coupon == "true" ){
-            window.location.href = 'order.html';
+            window.location.href = 'index.html';
         }
       }
     },
