@@ -58,16 +58,6 @@
       status: '',
       loadingIcon: true,
     },
-    method: {
-      getIndex(arr, key, value) {
-        for( let i = 0; i < arr.length; i++ ) {
-          if(arr[i].order.id == value) {
-            return i
-          }
-        }
-        return -1
-      },
-    },
     mounted: () => {
 
       let config = new CONFIG();
@@ -90,28 +80,35 @@
         ws.onclose = () => {
           location.reload();
         }
-        ws.onmessage = evt =>{
+        ws.onmessage = evt => {
           let data = JSON.parse(evt.data);
-          let index = vm.getIndex(vm.orders, "id", data.order.id);
-          switch (data.action_performed){
-            case 'order_received':
-              vm.orders.push(data)
-              break;
-            case 'order_normaled':
-              Vue.set(vm.orders[index].order, 'status', data.order.status);
-              break;
-            case 'order_created':
-              Vue.set(vm.orders[index].order, 'status', data.order.status);
-              break;
-            case 'order_serviced':
-              Vue.set(vm.orders[index].order, 'status', data.order.status);
-              break;
-            case 'order_calculated':
-              Vue.set(vm.orders[index].order, 'status', data.order.status);
-              break;
-            case 'order_destroy':
-              Vue.delete(vm.orders, data.order.id)
-              break;
+          if ( !(data.text) ) {
+            let index = -1;
+            for( let i = 0; i < vm.orders.length; i++ ) {
+              if(vm.orders[i].order.id == data.order.id) {
+                index = i
+              }
+            }
+            switch (data.action_performed){
+              case 'order_received':
+                vm.orders.push(data)
+                break;
+              case 'order_normaled':
+                Vue.set(vm.orders[index].order, 'status', data.order.status);
+                break;
+              case 'order_created':
+                Vue.set(vm.orders[index].order, 'status', data.order.status);
+                break;
+              case 'order_serviced':
+                Vue.set(vm.orders[index].order, 'status', data.order.status);
+                break;
+              case 'order_calculated':
+                Vue.set(vm.orders[index].order, 'status', data.order.status);
+                break;
+              case 'order_destroy':
+                Vue.delete(vm.orders, data.order.id)
+                break;
+            }
           }
         }
         ws.onerror = error => {
