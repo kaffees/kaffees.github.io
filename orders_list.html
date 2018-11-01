@@ -35,7 +35,7 @@
           <div class="orders col-md-4 card" v-for="(order, index) in sortOrders" :key="index" style="padding: 0.5em;" v-if="hoge(order.order.status)">
 
             <!-- action buttons -->
-          <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Created')" v-show="user.role == 'kitchen'">
+          <button type="button" class="btn btn-secondary" v-on:click.once="action(order.order.id, 'Created')" v-show="user.role == 'kitchen'">
             作成済み
           </button>
 
@@ -43,10 +43,10 @@
             キャンセル
           </button>
 
-          <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Serviced')" v-show="user.role == 'provider'">
+          <button type="button" class="btn btn-secondary" v-on:click.once="action(order.order.id, 'Serviced')" v-show="user.role == 'provider'">
             提供済み
           </button>
-          <button type="button" class="btn btn-secondary" v-on:click="action(order.order.id, 'Calculated')" v-show="user.role == 'counter'">
+          <button type="button" class="btn btn-secondary" v-on:click.once="action(order.order.id, 'Calculated')" v-show="user.role == 'counter'">
             会計済み
           </button>
 
@@ -67,7 +67,7 @@
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">取りやめる</button>
-                    <button type="button" class="btn btn-primary" v-on:click="action(order.order.id, 'Cancel')" data-dismiss="modal" > キャンセルを確定 </button>
+                    <button type="button" class="btn btn-primary" v-on:click.once="action(order.order.id, 'Cancel')" data-dismiss="modal" > キャンセルを確定 </button>
                   </div> <!-- div.modal-footer -->
                 </div> <!-- div.modal-body -->
               </div> <!-- div.modal-content -->
@@ -286,6 +286,9 @@
                 let old_index = vm.getIndex(vm.orders, "id", data.old_order.order.id); // find index old_order
                 Vue.set(vm.orders[old_index].order,  'status',               data.old_order.order.status); //キャンセル元
                 vm.orders[index]['old_order'] = data.old_order;
+                break;
+              case 'canceled_party_does_not_exist':
+                alert('有効な数値を入れてください');
                 break;
             }
           }
