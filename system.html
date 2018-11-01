@@ -22,7 +22,7 @@
         <h1 class="col-md-8">System</h1>
         <h4 class="col-md-4">{{ user.name }} ( {{ user.role }} ) <a href="#" class="badge badge-info" v-on:click="logout">Logout</a> </h4>
       </div>
-
+      <p>現在の空席数 {{ seats.length }}</p>
       <div class="row">
 
         <div class="card col-md-4">
@@ -75,12 +75,20 @@
         <div class="card col-md-4">
           <div class="card-body" style="padding: 15px;">
             <h5 class="card-title"> Products List <span class="badge badge-danger">AO</span> </h5>
-            <h6 class="card-subtitle mb-2 text-muted">スタッフ一覧</h6>
+            <h6 class="card-subtitle mb-2 text-muted">商品一覧</h6>
             <p class="card-text">管理者が商品値段情報を変更また商品を追加するページ</p>
             <a href="product.html" class="card-link"> Products List </a>
           </div>
+          </div>
+ 
+        <div class="card col-md-4">
+          <div class="card-body" style="padding: 15px;">
+            <h5 class="card-title"> Seats List <span class="badge badge-danger">AO</span> </h5>
+            <h6 class="card-subtitle mb-2 text-muted">席一覧</h6>
+            <p class="card-text">管理者が店内の席を変更または追加するページ</p>
+            <a href="seat.html" class="card-link"> Seats List </a>
+          </div>
         </div>
-
 
       </div><!-- div.row -->
 
@@ -88,10 +96,12 @@
   </body>
   <script>
   let auth = new Authentication;
+  let config = new CONFIG();
   var vm = new Vue({
     el: '#app',
     data: {
-      user: {}
+      user: {},
+      seats: []
     },
     methods: {
       logout() {
@@ -100,6 +110,15 @@
       }
     },
     mounted: () => {
+      // 空席
+      let seatsUrl = config.url(location.protocol) + '/vacant_seats';
+      axios.get(seatsUrl).then( response => {
+        vm.seats = response.data;
+      }).catch( err => {
+        console.log(err);
+      })
+      // 空席
+
       // Login verification
       auth.verification(localStorage.userToken, (result) => {
         if ( result ) {

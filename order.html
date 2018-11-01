@@ -55,6 +55,18 @@
           </div> <!-- col-sm-8 -->
         </div> <!-- form-group row -->
 
+        <hr>
+
+        <div class="form-group row" v-if="cast.token">
+          <label for="seats" class="col-sm-4 col-form-label">席</label>
+          <div class="col-sm-8">
+            <select class="form-control" id="input" v-model.number="seatNumber">
+              <option value="0" selected>--- 未選択 ---</option>
+              <option v-for="seat in seats" :value="seat.seat_number" >{{ seat.seat_number }}番席</option>
+            </select>
+          </div> <!-- col-sm-8 -->
+        </div> <!-- form-group row -->
+
         <div class="form-group row" v-if="!(cast.token)">
           <label for="inputTime" class="col-sm-4 col-form-label">受け取りの時間を指定する</label>
           <div class="col-sm-5">
@@ -166,6 +178,8 @@
         products: {},
       },
       products: {},
+      seats: {},
+      seatNumber: 0,
       cast: {
         name: localStorage.userName,
         role: localStorage.userRole,
@@ -194,17 +208,22 @@
         vm.wait_time = $("input#alarm").val();
 
         // vm.wait_time = $("input.timepicker").val();
-
-        if(0 < num && num <= 4){
-          vm.orderSubmitDisabled = false;
-          vm.msg = "";
-        } else if(num == 0) {
-          vm.msg = '注文を入力してください';
+        if(vm.seatNumber == 0) {
+          vm.msg = '席番号を選択してください';
           vm.orderSubmitDisabled = true;
         } else {
-          vm.msg = '注文は一回に４杯まででおねがいします'
+
+          if(0 < num && num <= 4){
+            vm.orderSubmitDisabled = false;
+            vm.msg = "";
+          } else if(num == 0) {
+            vm.msg = '注文を選択してください';
             vm.orderSubmitDisabled = true;
-        }
+          } else {
+            vm.msg = '注文は一回に４杯まででおねがいします'
+              vm.orderSubmitDisabled = true;
+          }
+        } 
       },
       submit() { // 注文確定ボタン
         if (vm.cast.token) {
@@ -219,7 +238,8 @@
           clientId: clientId,
           products: vm.products,
           wait_time: vm.wait_time,
-          coupon: coupon
+          coupon: coupon,
+          seat_number: vm.seatNumber
         });
         ws.send(data);
       },
@@ -243,19 +263,23 @@
     },
     mounted: () => {
       // get Products(Menu)
-      let url = config.url(location.protocol) + '/products';
-      axios.get(url).then( response => {
+      let productsUrl = config.url(location.protocol) + '/products';
+      axios.get(productsUrl).then( response => {
         vm.products = response.data;
-        vm.loadingIcon = false;
       }).catch( err => {
         console.log(err);
-      }).then( () => {
-        // always executed
-        });
+      });
+
+      let seatsUrl = config.url(location.protocol) + '/seats';
+      axios.get(seatsUrl).then( response => {
+        vm.seats = response.data;
+      }).catch( err => {
+        console.log(err);
+      })
 
       new Promise( (resolve, reject) => {
-        let url = config.wsurl(location.protocol) + '/orders/create';
-        ws = new WebSocket(url);
+        let wsUrl = config.wsurl(location.protocol) + '/orders/create';
+        ws = new WebSocket(wsUrl);
         resolve();
       }).then( () =>  {
 
@@ -263,8 +287,8 @@
           vm.confirmationSubmitDisabled = false;
           if ( !(vm.cast.token) ) {
             new Promise( (resolve, reject) =>{
-              let url = config.url(location.protocol) + '/order-history';
-              axios.get(url).then( response => {
+              let orderHistoryUrl = config.url(location.protocol) + '/order-history';
+              axios.get(orderHistoryUrl).then( response => {
                 console.log(response.data);
                 resolve(response.data);
               }).catch( err => {
@@ -274,10 +298,11 @@
               if ( data.order ) { //注文履歴の存在
                 vm.orderedData = data;
                 vm.orderWindow = false; // 注文画面非表示
-                  vm.determinationWindow = true; // 注文確定画面表示
+                vm.determinationWindow = true; // 注文確定画面表示
               }
             })
           }
+          vm.loadingIcon = false;
         }
 
         ws.onclose = () => {
@@ -298,8 +323,8 @@
                 if ( vm.cast.token ) { //ゲストの場合注文完了画面に移動
                   alert("受け取り番号: " + data.counter.receipt_number + "番をお客様に渡してください");
                   // get Products(Menu)
-                  let url = config.url(location.protocol) + '/products';
-                  axios.get(url).then( response => {
+                  let productsUrl = config.url(location.protocol) + '/products';
+                  axios.get(productsUrl).then( response => {
                     vm.products = response.data;
                   }).catch( err => {
                     alert('メニューの取得に失敗しました')
