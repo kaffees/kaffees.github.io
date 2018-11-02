@@ -106,11 +106,11 @@
                   <span v-if="wait_time"> 受け取り指定時間 {{ wait_time }} </span> 
                   <span v-else> すぐの受け取り(XXX分目安)</span>
                 </h5>
-                <p>上記の内容で注文内容はよろしいでしょうか<br>
-                確定後の変更はいたしかねます</p>
-                <p>予約注文の場合店内の席に余裕がない場合<br>
-                店内にご案内することができない可能性があります。<br>
-                予めご了承ください</p>
+                <p>ご注文は上記の内容でよろしいですか。<br>
+                確定後の変更は致しかねます。</p>
+                <p>予約注文の方は満席の場合、<br>
+                店内でのご飲食ができない可能性がありますことを<br>
+                予めご了承ください。</p>
                 <p class="blockquote-footer">注文を確定すると<a href="agreement.html" target="_blank" >利用規約</a>を同意したこととなります</p>
               </div> <!-- v-if='!msg' -->
               <div class="modal-footer">
@@ -137,7 +137,7 @@
         </p>
         <p v-else> 受け取り時間指定なし</p>
         <h3>伝票番号 {{ orderedData.counter.receipt_number }} 番になります</h3>
-        <small>時間になりましたら、一号館校舎三階(旧2-B)の予約受け取りカウンターにてお渡しさせていただきます
+        <small>お時間になりましたら、新しい棟の3階、奥から2番目の教室(1号館三階元2-B)の予約受け取りカウンターにてお受け取りいただけます。。
       </div> <!-- .determination -->
       <br>
       <a href="system.html" v-if="cast.token">戻る</a>
