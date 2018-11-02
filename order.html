@@ -231,8 +231,11 @@
           sessionStorage.clear()
         }
         let coupon = false;
-        coupon = Boolean(sessionStorage.coupon);
-        coupon = ( vm.cast.token && vm.couponFlag );
+        if ( vm.cast.token ){
+          coupon = vm.couponFlag;
+        } else {
+          coupon = Boolean(sessionStorage.coupon);
+        };
 
         data = JSON.stringify({
           submitCast: vm.cast.token,
