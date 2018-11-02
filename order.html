@@ -124,6 +124,7 @@
 
       <div class="determination" v-show="determinationWindow">
         <h2>注文が確定しました</h2>
+        <div class="alert alert-info" role="alert" v-if="orderedData.order.coupon"> クーポンが適応されています </div>
         <div class="alert alert-success" role="alert"> {{ translateStatus(orderedData.order.status) }} </div>
         <ol>
           <li v-for="order in orderedData.products">
