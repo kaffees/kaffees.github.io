@@ -322,7 +322,7 @@
             case 'order_received':
               if ( data.client_id == clientId ) { //この端末で注文されたデータか確認
                 if ( vm.cast.token ) { //ゲストの場合注文完了画面に移動
-                  alert("受け取り番号: " + data.counter.receipt_number + "番をお客様に渡してください");
+                  alert("席番号:" + data.seat.seat_number + "番をお客様に渡してください");
                   // get Products(Menu)
                   let productsUrl = config.url(location.protocol) + '/products';
                   axios.get(productsUrl).then( response => {
@@ -334,6 +334,7 @@
                   })
                 } else {
                   vm.orderedData = data;
+                  localStorage.setItem('alreadyOrdered', true)
                   vm.orderWindow = false; // 注文画面非表示
                     vm.determinationWindow = true; // 注文確定画面表示
                 };
