@@ -109,23 +109,23 @@
         <div class="rooibos-orange"><img src="./assets/images/rooibos-orange.gif" width="50%" height="50%"></div>
         <div class="space"></div>
       </div>
+    </div>
   </body>
-  <div>
-    <script>
-    let config = new CONFIG();
-    var vm = new Vue({
-      el: '#app',
-      data: {
-        seats: []
-      },
-      mounted: () => {
-        let seatsUrl = config.url(location.protocol) + '/vacant_seats';
-        axios.get(seatsUrl).then( response => {
-          vm.seats = response.data;
-        }).catch( err => {
-          console.log(err);
-        })
-      }
-    })
-    </script>
+  <script>
+  let config = new CONFIG();
+  var vm = new Vue({
+    el: '#app',
+    data: {
+      seats: []
+    },
+    mounted: () => {
+      let seatsUrl = config.url(location.protocol) + '/vacant_seats';
+      axios.get(seatsUrl).then( response => {
+        vm.seats = response.data;
+      }).catch( err => {
+        console.log(err);
+      })
+    }
+  })
+  </script>
 </html>
