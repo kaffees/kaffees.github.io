@@ -15,13 +15,7 @@ function order(){
   var stop = new Date();
   var ms = stop.getTime() - start.getTime();
   var s = ms / 1000;
-  if(s > 1){
+  if(s >  1){
   location.href = "https://kaffees.github.io/order.html";
   }
 }
-
-welcomeShow = function() {
-  document.getElementById("welcome").style.visibility ="visible";
-}
-
-setTimeout(welcomeShow, 100);

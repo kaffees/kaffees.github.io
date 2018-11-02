@@ -1,6 +1,6 @@
 body{
   margin: 0;
-  background-color: #ecb36d;
+  background-color: #ecc18c;
 }
 
 .logos{
@@ -24,7 +24,7 @@ background-color: #fffab0;
 .wall-paper{
   width: 100vw;
   height: 100vh;
-  background: rgb(255, 242, 230);
+  background: white;
 }
 
 @keyframes door-open {
@@ -43,12 +43,10 @@ background-color: #fffab0;
   z-index: 4;
   position: absolute;
 }
-
 .parent-door {
   perspective: 1000px;
   position:  fixed;
 }
-
 .welcome {
   -webkit-animation: down-welcome 3.0s linear 0s forwards;
   animation: down-welcome 3.0s linear 0s forwards;
@@ -59,19 +57,15 @@ background-color: #fffab0;
   left: 0;
   right: 0;
   bottom: 0;
-  visibility : hidden;
 }
-
 @keyframes down-welcome {
   0% { transform: translate(0, -250%);}
   100% { transform: translate(0, -10%);}
 }
-
 .logo {
   animation-delay: 2s;
   text-align: center;
 }
-
 @keyframes logo-in {
   50% { opacity: 0; }
   50% { opacity: 0; }
@@ -96,36 +90,55 @@ background-color: #fffab0;
 .memu {
   z-index: 3;
 }
-
-.bolivia, .earl-grey, .matcha-latte, .rooibos-orange{
+/* .flag{
+  width: 10px;
+  height: 10px;
+  position: fixed;
+  z-index: 2;
+  top:0;
+  right:10vw;
+} */
+/* .cocoa,.matcha-latte,.rooibos-orange{
   text-align: right;
 }
-
-.coffee, .el_salvador, .milk-tae, .cocoa {
+.cocoa,.matcha-latte,.rooibos-orange{
+  text-align: right;
+}
+.cocoa,.matcha-latte,.rooibos-orange {
+  width: auto;
+  height: auto;
+  background: black;
+} */
+/* .coffee, .cocoa, .milk-tae, .matcha-latte, .earl-grey, .rooibos-orange{
+  position: absolute;
+} */
+/* .coffee{
+  position: absolute;
+  
+}
+.cocoa{
+  position: absolute;
+  
+} */
+.cocoa, .matcha-latte, .rooibos-orange{
+  text-align: right;
+}
+.coffee, .milk-tae, .earl-grey{
   background-color: #f7f1e5;
 }
 
-.attention-text{
-  text-align: center;
-  font-size: 3em;
-  color: gray;
-  text-shadow: 3px 3px 1px #ffffff;
-}
-
-.bolivia-text, .earl-grey-text, .matcha-latte-text, .rooibos-orange-text{
+.cocoa-text, .matcha-latte-text, .rooibos-orange-text{
   font-size: 3em;
   position: absolute;
   color: gray;
   text-shadow: 3px 3px 1px #ffffff;
 }
-
-.coffee-text, .el_salvador-text, .milk-tae-text, .cocoa-text{
-  text-align: right;
+.coffee-text, .milk-tae-text, .earl-grey-text{
   font-size: 3em;
   position: absolute;
-  color: gray;
+  color: #e9e9e9;
   left: 50vw;
-  text-shadow: 3px 3px 1px #ffffff;
+  text-shadow: 3px 3px 1px #5a5a5a;
 }
 
 .space{

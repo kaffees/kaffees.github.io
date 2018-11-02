@@ -27,14 +27,6 @@
       <div class="order" v-show="orderWindow">
         <h1>予約注文  <span class="badge badge-pill badge-primary" v-if="cast.token">{{ cast.name }}</span></h1>
         <hr>
-        <p v-if="!(cast.token)">
-          本格的な珈琲や寒い日にぴったりなHOTなドリンクをご用意いたしました、
-          こちらでご注文いただくことで、他のクラスのブースを見ながらでも商品の注文でき、
-          受け取り時間を指定していただくと、その時間にお飲み物をご提供出来るよう、お飲み物をご用意いたします。
-        </p>
-        <smal>なお店内が大変混みあった場合ご提供に時間をいただく場合がございます。予めご了承ください。</smal>
-        <smal>また店内混み合いますとイートインでのお食事ができない場合がございますのでそちらの方もご了承ください</smal>
-
         <div class="alert alert-warning alert-dismissible fade show" role="alert" v-for="log in logs">
           {{ log }}
           <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -335,6 +327,8 @@
                   let productsUrl = config.url(location.protocol) + '/products';
                   axios.get(productsUrl).then( response => {
                     vm.products = response.data;
+                    vm.seatNumber = 0;
+                    vm.couponFlag = false;
                   }).catch( err => {
                     alert('メニューの取得に失敗しました')
                   })

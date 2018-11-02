@@ -88,11 +88,9 @@
             </div>
           </div>
           <!-- action buttons -->
-          <p>
-          待ち番号: <span v-if="order.old_order ">{{ order.old_order.counter.receipt_number }} ⇒ </span>{{order.counter.receipt_number}}
-          <span class="badge badge-success" v-if="order.submitted_person">{{ order.submitted_person.name }}</span>
-          </p>
-          <p class="badge badge-danger" v-if="!(order.submitted_person) ">受け取り指定時間: {{ new Date(order.order.wait_time).toLocaleTimeString() }}</p>
+          <p> 待ち番号: <span v-if="order.old_order ">{{ order.old_order.counter.receipt_number }} ⇒ </span>{{order.counter.receipt_number}} /<span v-if="order.seat" > 席番号: {{ order.seat.seat_number }}</span> </p>
+          <p class="badge badge-success" v-if="order.submitted_person">{{ order.submitted_person.name }}</span> </p>
+          <p class="badge badge-danger"  v-if="!(order.submitted_person) ">受け取り指定時間: {{ new Date(order.order.wait_time).toLocaleTimeString() }}</p>
           <ul>
             <li v-for=" product in order.products ">
               {{ product.name }}
