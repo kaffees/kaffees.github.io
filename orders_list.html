@@ -271,9 +271,6 @@
         ws.onerror = error => {
           console.error("Error:" + error);
         }
-        setInterval( () => { // heroku 対策
-          ws.send(JSON.stringify({text: "dumy"}))
-        }, 15000);
       })
     },  
     computed: {
