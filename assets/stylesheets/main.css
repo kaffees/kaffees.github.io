@@ -106,11 +106,13 @@ body{
 }
 
 .attention-text{
+
   font-size: 3em;
   color: gray;
   text-shadow: 3px 3px 1px #ffffff;
   margin-left: 5%;
   margin-right: 5%;
+  
 }
 
 .bolivia-text, .earl-grey-text, .matcha-latte-text, .rooibos-orange-text{
