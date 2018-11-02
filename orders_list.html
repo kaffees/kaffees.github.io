@@ -10,7 +10,6 @@
     <script src="./assets/js/axios.min.js"></script>
     <script type="text/javascript" src="./assets/js/config.js"></script>
     <script type="text/javascript" src="./assets/js/auth.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/1.2.3/velocity.min.js"></script>
     <!-- Bootstrap -->
     <link rel="stylesheet" href="./assets/bootstrap/css/bootstrap.min.css">
     <script src="./assets/js/jquery-3.3.1.min.js"></script>
@@ -31,7 +30,7 @@
         <small id="emailHelp" class="form-text text-muted">検索したい番号札の番号を入れてください</small>
       </div>
       <div class="container">
-        <transition-group name="staggered-fade" tag="div" class="row" v-bind:css="false" v-on:before-enter="beforeEnter" v-on:enter="enter" v-on:leave="leave" >
+        <div class="row">
           <div class="orders col-md-4 card" v-for="(order, index) in sortOrders" :key="index" style="padding: 0.5em;" v-if="hoge(order.order.status)">
 
             <!-- action buttons -->
@@ -88,7 +87,9 @@
             </div>
           </div>
           <!-- action buttons -->
-          <p> 待ち番号: <span v-if="order.old_order ">{{ order.old_order.counter.receipt_number }} ⇒ </span>{{order.counter.receipt_number}} /<span v-if="order.seat" > 席番号: {{ order.seat.seat_number }}</span> </p>
+          <p v-if="!(user.role == 'provider') && !( user.role == 'counter' && order.seat )"> 待ち番号: <span v-if="order.old_order ">{{ order.old_order.counter.receipt_number }} ⇒ </span>{{order.counter.receipt_number}} </p>
+          <p v-if="order.seat" > 席番号: {{ order.seat.seat_number }} </p>
+
           <p class="badge badge-success" v-if="order.submitted_person">{{ order.submitted_person.name }}</span> </p>
           <p class="badge badge-danger"  v-if="!(order.submitted_person) ">受け取り指定時間: {{ new Date(order.order.wait_time).toLocaleTimeString() }}</p>
           <ul>
@@ -101,7 +102,7 @@
           <p v-if="user.role == 'counter' && order.order.coupon">クーポンが適応されています</p>
           <strong v-show="user.role == 'counter'">合計{{ totalAmount(order.order.coupon, order.products) }}円</strong>
           </div> <!-- div.orders.col-md-4 -->
-        </transition-group>
+        </div>
       </div> <!-- div.container -->
     </div> <!-- div#app.system -->
   </body>
@@ -201,30 +202,6 @@
 
         window.location.href = 'login.html'
       },
-      beforeEnter: function (el) {
-        el.style.opacity = 0
-          el.style.height = 0
-      },
-      enter: function (el, done) {
-        var delay = el.dataset.index * 150
-          setTimeout(function () {
-            Velocity(
-              el,
-              { opacity: 1, height: '18em' },
-              { complete: done }
-            )
-          }, delay)
-      },
-      leave: function (el, done) {
-        var delay = el.dataset.index * 150
-          setTimeout(function () {
-            Velocity(
-              el,
-              { opacity: 0, height: 0 },
-              { complete: done }
-            )
-          }, delay)
-      }
     },
     mounted: () => {
       // Login verification
