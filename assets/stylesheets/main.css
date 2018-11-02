@@ -11,11 +11,11 @@ body{
 .partition{
   position: absolute;
   top: 0;
-left: 0;
-right: 0;
-bottom: 0;
-margin: auto;
-background-color: #fffab0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  background-color: #fffab0;
 }
 
 .menus{
@@ -106,7 +106,6 @@ background-color: #fffab0;
 }
 
 .attention-text{
-  text-align: center;
   font-size: 3em;
   color: gray;
   text-shadow: 3px 3px 1px #ffffff;
