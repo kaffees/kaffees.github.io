@@ -135,7 +135,9 @@
         </p>
         <p v-else> 受け取り時間指定なし</p>
         <h3>伝票番号 {{ orderedData.counter.receipt_number }} 番になります</h3>
-        <small>お時間になりましたら、新しい棟の3階、奥から2番目の教室(1号館三階元2-B)の予約受け取りカウンターにてお受け取りいただけます。。
+        <small>お時間になりましたら、新しい棟の3階、奥から2番目の教室(1号館三階元2-B)
+          入って正面予約受け取りカウンターにてご準備しております。
+        </small>
       </div> <!-- .determination -->
       <br>
       <a href="system.html" v-if="cast.token">戻る</a>
@@ -208,7 +210,7 @@
 
         // vm.wait_time = $("input.timepicker").val();
         if( vm.cast.token && vm.seatNumber == 0) {
-          vm.msg = '席番号を選択してください';
+          vm.msg = '席番号を選択しろ';
           vm.orderSubmitDisabled = true;
         } else {
 
@@ -219,7 +221,7 @@
             vm.msg = '注文を選択してください';
             vm.orderSubmitDisabled = true;
           } else {
-            vm.msg = '注文は一回に４杯まででおねがいします'
+            vm.msg = '注文は一回に４杯までとなっております'
               vm.orderSubmitDisabled = true;
           }
         } 
@@ -248,11 +250,10 @@
       translateStatus(status) {
         switch (status) { //注文のステータス
           case 'normal':
-            return '注文の作成はまだ開始されておりません'
+            return '注文の作成はただいま準備中です。'
             break;
-          case 'created': //kitchen
-            //作成済みの注文はキッチン担当の場合見せない
-            return "ご注文のお品は店舗にて保管されております"
+          case 'created':
+            return "ご注文のお品は店舗にてお受け取りが可能になりました。"
             break;
         }
       },
@@ -348,7 +349,7 @@
               break;
             case 'order_created':
               if (vm.cast.token) {
-                vm.logs.push("注文番号:" + data.counter.receipt_number + "が完成しました");
+                vm.logs.push("席番号:" + data.seat.seat_number + "が完成しました");
               } else if (data.order.id == vm.orderedData.order.id) {
                 Vue.set(vm.orderedData.order, 'status', data.order.status)
               }
@@ -367,7 +368,7 @@
       show_meridian:false,
       overflow_minutes:true,
       disable_keyboard_mobile: true,
-      start_time: [now.getHours(), "00"]
+      start_time: [now.getHours(), now.getMinutes() + 5]
       });
   });
   </script>
