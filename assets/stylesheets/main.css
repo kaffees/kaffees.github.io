@@ -115,6 +115,15 @@ body{
   
 }
 
+.Vacancy{
+  text-align: center;
+  font-size: 3em;
+  position: absolute;
+  color: gray;
+  left: 50vw;
+  text-shadow: 3px 3px 1px #ffffff;
+}
+
 .bolivia-text, .earl-grey-text, .matcha-latte-text, .rooibos-orange-text{
   font-size: 3em;
   position: absolute;
