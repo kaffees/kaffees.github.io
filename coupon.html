@@ -4,8 +4,8 @@
     <title>Kaffees - Coupon</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" href="./assets/images/favicon.ico" type="image/vnd.microsoft.icon">
-    <link rel="icon" href="./assets/images/favicon.ico" type="image/vnd.microsoft.icon">
+    <link rel="shortcut icon" href="./assets/images/favicon.gif" type="image/vnd.microsoft.icon">
+    <link rel="icon" href="./assets/images/favicon.gif" type="image/vnd.microsoft.icon">
     <script src="./assets/js/vue.js"></script>
     <!-- Bootstrap -->
     <link rel="stylesheet" href="./assets/bootstrap/css/bootstrap.min.css">
@@ -37,7 +37,7 @@
       submit() {
         sessionStorage.setItem('coupon', true)
         if ( sessionStorage.coupon == "true" ){
-            window.location.href = 'index.html';
+          window.location.href = 'order.html';
         }
       }
     },
