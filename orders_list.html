@@ -24,6 +24,32 @@
         <h1 class="col-md-8">Orders List</h1>
         <h4 class="col-md-4">{{ user.name }} ( {{ user.role }} ) <a href="#" class="badge badge-info" v-on:click="logout">Logout</a> </h4>
       </div>
+      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#seatModal" v-show="user.role == 'counter'">
+        予約注文の追加
+      </button>
+      <div class="modal fade" id="seatModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 class="modal-title" id="confirmationModalTitle">予約注文者の席追加</h3>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div> <!-- modal-header -->
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="seatNumber">席番号</label>
+                <input type="number" class="form-control" id="inputNewSeatNumber" placeholder="Enter Seat Number" v-model.number="keepSeatNumber">
+                <small id="seatlHelp" class="form-text text-muted">確保したい席の番号を入力してください</small>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取りやめる</button>
+                <button type="button" class="btn btn-primary" v-on:click="keepSeat" data-dismiss="modal" > 席を確保 </button>
+              </div> <!-- div.modal-footer -->
+            </div> <!-- div.modal-body -->
+          </div> <!-- div.modal-content -->
+        </div> <!-- div.modal-dialog -->
+      </div> <!-- div.modal.fade -->
       <p>{{ status }}</p>
       <div class="form-group">
         <input type="number" class="form-control"  placeholder="Search" v-model.number="searchWord">
@@ -130,6 +156,7 @@
       },
       searchWord: null,
       newOrderId: 0,
+      keepSeatNumber: 0,
       orders: [],
       status: '',
       loadingIcon: true,
@@ -185,6 +212,13 @@
         } else {
           return true
         }
+      },
+      keepSeat() {
+        ws.send(JSON.stringify({
+          action: 'KeepSeat',
+          submitCast: vm.user.token,
+          keep_seat_number: vm.keepSeatNumber
+        }))
       },
       getIndex(arr, key, value) {
         for( let i = 0; i < arr.length; i++ ) {
@@ -265,6 +299,9 @@
               case 'canceled_party_does_not_exist':
                 alert('有効な数値を入れてください');
                 break;
+              case 'keeped_seat':
+                vm.orders.push(data)
+                break
             }
           }
         }
