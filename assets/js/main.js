@@ -6,10 +6,15 @@ var start;
 function main() {
   start = new Date();
   document.getElementById("logos").style.display = "none";
+  console.log(1);
   document.getElementById("menus").style.display = "block";
+  console.log(1);
   document.getElementById("button").style.backgroundColor = "#2b3e2a";
+  console.log(1);
   document.getElementById("button").value = "注文画面へ";
+  console.log(1);
   document.getElementById("button").onclick = new Function("order();");
+  console.log(1);
 }
 function order(){
   var stop = new Date();

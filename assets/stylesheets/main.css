@@ -21,6 +21,14 @@ body{
 .menus{
   display: none;
 }
+
+.space-chair{
+  text-align: center;
+  font-size: 4em;
+  color: rgb(0, 0, 0);
+  text-shadow: 3px 3px 1px #ffffff;
+}
+
 .wall-paper{
   width: 100vw;
   height: 100vh;
